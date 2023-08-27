@@ -14,6 +14,8 @@ Cloudy is a file explorer that allows you to easily manage your Cloudflare R2 bu
 
 It is designed to be deployed to your own Cloudflare account with bindings added to the project.
 
+A live demo (read-only) is available at [cloudy.pages.dev](https://cloudy.pages.dev).
+
 ## Features
 
 - **File Explorer** - Browse your R2 buckets and files.
