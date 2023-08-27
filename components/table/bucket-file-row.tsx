@@ -25,7 +25,7 @@ export const BucketFileRow = ({ bucketName, path, type, file }: Props): JSX.Elem
 
 	const handleDoubleClick = () => {
 		if (type === 'directory') {
-			router.push(`/bucket/${bucketName}${path}`);
+			router.push(`/bucket/${bucketName}/${path}`);
 		} else {
 			triggerFilePreview(file.key);
 		}

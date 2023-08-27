@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { formatBucketName } from '@/utils/r2';
 import { UploadSimple, XCircle } from '../icons';
-import { addLeadingSlash, useLocation } from '../providers';
+import { useLocation } from '../providers';
 import type { DroppedFiles } from './drop-zone';
 import { DropZone } from './drop-zone';
 import { UploadFileRow } from './upload-file-row';
@@ -11,7 +12,7 @@ import { UploadFileRow } from './upload-file-row';
 export const UploadFileButton = (): JSX.Element => {
 	const router = useRouter();
 	const { bucket, location } = useLocation();
-	const locationPath = addLeadingSlash(location.join('/'));
+	const locationPath = [...(bucket ? [formatBucketName(bucket)] : []), ...location].join('/');
 
 	const modal = useRef<HTMLDialogElement>(null);
 	const [droppedFiles, setDroppedFiles] = useState<DroppedFiles | null>(null);

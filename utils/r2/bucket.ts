@@ -35,16 +35,16 @@ export const validateBucketName = (bucketName?: string): void => {
 
 export const getBucketItems = async (
 	bucketName: string,
-	{ directory }: { directory: string; cursor?: string; limit?: number },
+	{ directory, cursor, limit }: { directory: string; cursor?: string; limit?: number },
 ): Promise<R2Objects> =>
 	binding<R2Bucket>(bucketName).list({
-		prefix: `/${directory.replace(/^\/|\/$/g, '')}/`.replace(/\/\//g, '/'),
+		prefix: `${directory.replace(/^\/|\/$/g, '')}/`.replace(/\/\//g, '/').replace(/^\/$/, ''),
 		delimiter: '/',
-		// cursor,
-		// limit,
-		// // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// // @ts-ignore - this is a bug in the cloudflare workers types
-		// include: ['httpMetadata', 'customMetadata'],
+		cursor,
+		limit,
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore - this is a bug in the cloudflare workers types
+		include: ['httpMetadata', 'customMetadata'],
 	});
 
 export const formatFullPath = (path: string[]) =>

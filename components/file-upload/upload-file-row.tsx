@@ -4,7 +4,6 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { bytesToString } from '@/utils/hooks';
 import { UploadSimple } from '../icons';
-import { addLeadingSlash } from '../providers';
 
 type Props = {
 	bucket: string | null;
@@ -74,7 +73,7 @@ export const UploadFileRow = ({ bucket, dirPath, file }: Props) => {
 	const uploadFile = useCallback(async () => {
 		const reqInstance = req.current;
 
-		const key = addLeadingSlash(`${dirPath}/${file.name}`).replace(/\/+/g, '/');
+		const key = `${dirPath}/${file.name}`.replace(/\/+/g, '/');
 		const fileInfo = btoa(JSON.stringify({ bucket, key }));
 
 		reqInstance?.open('PUT', `/api/bucket/${bucket}`);
@@ -97,7 +96,7 @@ export const UploadFileRow = ({ bucket, dirPath, file }: Props) => {
 					<span>{bytesToString(file.size)}</span>
 				</div>
 
-				{error && <span className="text-xs text-status-error">{error}</span>}
+				{error && <span className="text-status-error text-xs">{error}</span>}
 			</div>
 
 			<button
