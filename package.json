@@ -1,25 +1,47 @@
 {
-  "name": "r2-file-explorer",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "@types/node": "20.5.6",
-    "@types/react": "18.2.21",
-    "@types/react-dom": "18.2.7",
-    "autoprefixer": "10.4.15",
-    "eslint": "8.48.0",
-    "eslint-config-next": "13.4.19",
-    "next": "13.4.19",
-    "postcss": "8.4.28",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "tailwindcss": "3.3.3",
-    "typescript": "5.2.2"
-  }
+	"name": "r2-file-explorer",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "next lint",
+		"tsc": "tsc --noEmit",
+		"prettier": "prettier --check . --ignore-path .gitignore",
+		"prettier:fix": "prettier --write . --ignore-path .gitignore",
+		"test": "echo \"No tests found\" && exit 0",
+		"pages:build": "npx @cloudflare/next-on-pages",
+		"pages:dev": "pnpm exec wrangler pages dev .vercel/output/static --compatibility-flag=nodejs_compat",
+		"pages:deploy": "pnpm exec wrangler pages deploy .vercel/output/static",
+		"proxy": "pnpm exec cf-bindings-proxy --r2=MY_R2"
+	},
+	"dependencies": {
+		"@phosphor-icons/react": "^2.0.10",
+		"next": "13.4.19",
+		"next-themes": "^0.2.1",
+		"react": "18.2.0",
+		"react-dom": "18.2.0",
+		"cf-bindings-proxy": "^0.4.0",
+		"tailwind-merge": "^1.14.0"
+	},
+	"devDependencies": {
+		"@cloudflare/next-on-pages": "https://prerelease-registry.devprod.cloudflare.dev/next-on-pages/runs/5993606051/npm-package-next-on-pages-445",
+		"@cloudflare/workers-types": "^4.20230821.0",
+		"@tsconfig/strictest": "^2.0.1",
+		"@types/node": "20.5.6",
+		"@types/react": "18.2.21",
+		"@types/react-dom": "18.2.7",
+		"autoprefixer": "10.4.15",
+		"eslint": "8.48.0",
+		"eslint-config-ixn-next": "^1.4.5",
+		"eslint-config-next": "13.4.19",
+		"postcss": "8.4.28",
+		"prettier": "^3.0.2",
+		"prettier-plugin-tailwindcss": "^0.5.3",
+		"tailwindcss": "3.3.3",
+		"typescript": "5.2.2",
+		"vercel": "^32.1.0",
+		"wrangler": "^3.6.0"
+	}
 }

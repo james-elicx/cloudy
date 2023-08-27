@@ -1,34 +1,64 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+<p align="center">
+  <h3 align="center">Cloudy</h3>
+
+  <p align="center">
+    Modern, self-hosted file explorer
+    <br />
+    for Cloudflare R2 Storage.
+  </p>
+</p>
+
+---
+
+Cloudy is a file explorer that allows you to easily manage your Cloudflare R2 buckets.
+
+It is designed to be deployed to your own Cloudflare account with bindings added to the project.
+
+## Features
+
+- **File Explorer** - Browse your R2 buckets and files.
+- **Preview Files** - Preview images and videos in the browser.
+- **Upload Files** - Upload files to your buckets.
+
+More features are planned and coming soon.
 
 ## Getting Started
 
-First, run the development server:
+To use Cloudy, you will need to clone the repository and install the dependencies.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+```sh
+# Clone the repository.
+git clone https://github.com/james-elicx/cloudy
+cd cloudy
+
+# Install the dependencies.
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then, you can build it and deploy it to your own Cloudflare account.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```sh
+# Build the project.
+pnpm run pages:build
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+# Deploy it to Cloudflare Pages.
+pnpm run pages:deploy
+```
 
-## Learn More
+This project uses [`@cloudflare/next-on-pages`](https://github.com/cloudflare/next-on-pages), meaning that you will need to set the `nodejs_compat` compatibility flag in your Pages project settings (_Settings > Functions > Compatibility Flags_).
 
-To learn more about Next.js, take a look at the following resources:
+After that, you just need to add your R2 Bindings to your project 🙂.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Read-Only Mode
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+To enable read-only mode for your deployment, set the `CLOUDY_READ_ONLY` environment variable to `true`.
 
-## Deploy on Vercel
+## Contributing
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Contributions are welcome! For length changes, please open an issue first to discuss what you would like to add.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+During local development, this project uses [`cf-bindings-proxy`](https://github.com/james-elicx/cf-bindings-proxy) to allow you to use `next dev`. You must run the proxy in a separate terminal window to `next dev`, using `pnpm run proxy`.
+
+## Extra Words
+
+The design for Cloudy was inspired by [Spacedrive](https://github.com/spacedriveapp/spacedrive), an incredible open-source file explorer. I would strongly recommend checking it out!
