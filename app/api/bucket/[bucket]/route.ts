@@ -2,6 +2,12 @@ import { getBucketFromEnv } from '@/utils/r2';
 
 export const runtime = 'edge';
 
+export type FileInfo = {
+	bucket: string;
+	key: string;
+	lastMod?: number;
+};
+
 export const PUT = async (
 	req: Request,
 	{ params: { bucket: bucketName } }: { params: { bucket: string } },
@@ -18,7 +24,7 @@ export const PUT = async (
 	const formData = await req.formData();
 
 	for (const [rawFileInfo, file] of formData) {
-		let fileInfo: { bucket: string; key: string; lastmod?: number };
+		let fileInfo: FileInfo;
 		try {
 			const parsedInfo = JSON.parse(atob(rawFileInfo));
 			if (
@@ -43,7 +49,7 @@ export const PUT = async (
 				httpMetadata: {
 					contentType: asFile.type,
 				},
-				customMetadata: fileInfo.lastmod ? { lastmod: fileInfo.lastmod?.toString() } : {},
+				customMetadata: fileInfo.lastMod ? { mtime: fileInfo.lastMod?.toString() } : {},
 			});
 		} catch (e) {
 			const msg = e instanceof Error ? e.message : 'Failed to upload file to bucket';
