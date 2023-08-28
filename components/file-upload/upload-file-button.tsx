@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { formatBucketName } from '@/utils/r2';
 import { UploadSimple, XCircle } from '../icons';
 import { useLocation } from '../providers';
 import type { DroppedFiles } from './drop-zone';
@@ -11,8 +10,8 @@ import { UploadFileRow } from './upload-file-row';
 
 export const UploadFileButton = (): JSX.Element => {
 	const router = useRouter();
-	const { bucket, location } = useLocation();
-	const locationPath = [...(bucket ? [formatBucketName(bucket)] : []), ...location].join('/');
+	const { currentBucket, location } = useLocation();
+	const locationPath = [...(currentBucket ? [currentBucket.parsed] : []), ...location].join('/');
 
 	const modal = useRef<HTMLDialogElement>(null);
 	const [droppedFiles, setDroppedFiles] = useState<DroppedFiles | null>(null);
@@ -34,7 +33,7 @@ export const UploadFileButton = (): JSX.Element => {
 
 	return (
 		<>
-			<button type="button" onClick={() => modal.current?.showModal()}>
+			<button type="button" onClick={() => modal.current?.showModal()} disabled={!currentBucket}>
 				<UploadSimple
 					weight="bold"
 					className="h-5 w-5 transition-colors hover:text-accent dark:hover:text-accent-dark"
@@ -62,7 +61,7 @@ export const UploadFileButton = (): JSX.Element => {
 							<UploadFileRow
 								key={`${file.name}-${file.size}`}
 								file={file}
-								bucket={bucket}
+								bucket={currentBucket?.raw ?? null}
 								dirPath={location.join('/')}
 							/>
 						))

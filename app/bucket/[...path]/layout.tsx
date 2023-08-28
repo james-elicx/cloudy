@@ -1,4 +1,5 @@
-import { formatBucketName, formatFullPath, validateBucketName } from '@/utils/r2';
+import { validateBucketName } from '@/utils/r2';
+import { formatBucketName, formatFullPath } from '@/utils';
 import { FilePreviewProvider } from '@/components';
 import type { Metadata } from 'next';
 import { Ctx } from './ctx';

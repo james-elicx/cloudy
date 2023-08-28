@@ -1,5 +1,6 @@
 'use client';
 
+import { addLeadingSlash } from '@/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { twMerge } from 'tailwind-merge';
@@ -12,8 +13,6 @@ type Props = {
 	className?: string;
 	exact?: boolean;
 };
-
-export const addLeadingSlash = (str: string) => (str.startsWith('/') ? str : `/${str}`);
 
 export const NavLink = ({
 	asButton,

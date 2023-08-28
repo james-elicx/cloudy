@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { bytesToString } from '@/utils/hooks';
+import { bytesToString } from '@/utils';
 import { UploadSimple } from '../icons';
 
 type Props = {
@@ -74,7 +74,7 @@ export const UploadFileRow = ({ bucket, dirPath, file }: Props) => {
 		const reqInstance = req.current;
 
 		const key = `${dirPath}/${file.name}`.replace(/\/+/g, '/').replace(/^\//, '');
-		const fileInfo = btoa(JSON.stringify({ bucket, key }));
+		const fileInfo = btoa(JSON.stringify({ bucket, key, lastMod: file.lastModified }));
 
 		reqInstance?.open('PUT', `/api/bucket/${bucket}`);
 		reqInstance?.setRequestHeader('x-content-type', file.type);
@@ -104,7 +104,7 @@ export const UploadFileRow = ({ bucket, dirPath, file }: Props) => {
 				type="button"
 				aria-label="Upload file"
 				className={twMerge(
-					'flex h-7 w-7 items-center justify-center rounded-full border-1 border-secondary-dark/20 bg-background px-1 transition-[background] duration-75 hover:bg-secondary hover:bg-opacity-30 disabled:cursor-not-allowed dark:border-secondary-dark/20 dark:bg-secondary-dark',
+					'flex h-7 w-7 items-center justify-center rounded-full border-1 border-secondary-dark/20 bg-background px-1 transition-[background] duration-75 hover:bg-secondary hover:bg-opacity-30 disabled:cursor-not-allowed dark:border-secondary-dark/20 dark:bg-background-dark dark:hover:bg-secondary-dark',
 					isUploading &&
 						'border-status-info text-status-info dark:border-status-info dark:text-status-info',
 					isDone &&

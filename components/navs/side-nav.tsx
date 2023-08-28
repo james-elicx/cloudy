@@ -1,9 +1,8 @@
 'use client';
 
-import { formatBucketName } from '@/utils/r2';
-import { useLocation } from '../providers';
 import { HardDrives } from '../icons';
 import { NavLink } from './nav-link';
+import { useLocation } from '../providers';
 
 export const SideNav = (): JSX.Element => {
 	const { buckets } = useLocation();
@@ -19,9 +18,9 @@ export const SideNav = (): JSX.Element => {
 			<div className="flex flex-col gap-1">
 				<span className="text-sm font-semibold">R2 Buckets</span>
 
-				{buckets.map((bucketName) => (
-					<NavLink key={bucketName} href={`/bucket/${bucketName}`} exact={false}>
-						<HardDrives weight="bold" className="h-5 w-5" /> {formatBucketName(bucketName)}
+				{buckets.map((bucket) => (
+					<NavLink key={bucket.raw} href={`/bucket/${bucket.raw}`} exact={false}>
+						<HardDrives weight="bold" className="h-5 w-5" /> {bucket.parsed}
 					</NavLink>
 				))}
 			</div>

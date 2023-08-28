@@ -3,4 +3,4 @@ export * from './icons';
 export * from './typography';
 export * from './navs';
 export * from './file-upload';
-export * from './table';
+export * from './files-view';
