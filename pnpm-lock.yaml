@@ -29,8 +29,8 @@ dependencies:
 
 devDependencies:
   '@cloudflare/next-on-pages':
-    specifier: https://prerelease-registry.devprod.cloudflare.dev/next-on-pages/runs/5993606051/npm-package-next-on-pages-445
-    version: '@prerelease-registry.devprod.cloudflare.dev/next-on-pages/runs/5993606051/npm-package-next-on-pages-445(vercel@32.1.0)(wrangler@3.6.0)'
+    specifier: https://prerelease-registry.devprod.cloudflare.dev/next-on-pages/runs/6000424171/npm-package-next-on-pages-445
+    version: '@prerelease-registry.devprod.cloudflare.dev/next-on-pages/runs/6000424171/npm-package-next-on-pages-445(vercel@32.1.0)(wrangler@3.6.0)'
   '@cloudflare/workers-types':
     specifier: ^4.20230821.0
     version: 4.20230821.0
@@ -7323,14 +7323,14 @@ packages:
       zod: 3.21.4
     dev: true
 
-  '@prerelease-registry.devprod.cloudflare.dev/next-on-pages/runs/5993606051/npm-package-next-on-pages-445(vercel@32.1.0)(wrangler@3.6.0)':
+  '@prerelease-registry.devprod.cloudflare.dev/next-on-pages/runs/6000424171/npm-package-next-on-pages-445(vercel@32.1.0)(wrangler@3.6.0)':
     resolution:
       {
-        tarball: https://prerelease-registry.devprod.cloudflare.dev/next-on-pages/runs/5993606051/npm-package-next-on-pages-445,
+        tarball: https://prerelease-registry.devprod.cloudflare.dev/next-on-pages/runs/6000424171/npm-package-next-on-pages-445,
       }
-    id: '@prerelease-registry.devprod.cloudflare.dev/next-on-pages/runs/5993606051/npm-package-next-on-pages-445'
+    id: '@prerelease-registry.devprod.cloudflare.dev/next-on-pages/runs/6000424171/npm-package-next-on-pages-445'
     name: '@cloudflare/next-on-pages'
-    version: 0.0.0-428ef41
+    version: 0.0.0-8afdf34
     hasBin: true
     peerDependencies:
       vercel: ^30.0.0 || ^31.0.0 || ^32.0.0

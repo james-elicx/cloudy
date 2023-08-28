@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from 'react';
 
-export const useOnClickOutside = <T extends HTMLElement = HTMLElement>(
-	ref: React.RefObject<T>,
+export const useOnClickOutside = (
+	ref: React.RefObject<HTMLElement> | React.RefObject<HTMLElement>[],
 	handler: (e: MouseEvent) => void,
 	disable = false,
 ) => {
@@ -14,7 +14,12 @@ export const useOnClickOutside = <T extends HTMLElement = HTMLElement>(
 
 	useEffect(() => {
 		const onClick = (e: MouseEvent) => {
-			if (!disableRef.current && ref.current && !ref.current.contains(e.target as Node)) {
+			if (
+				!disableRef.current &&
+				(Array.isArray(ref) ? ref : [ref]).every(
+					(r) => r.current && !r.current.contains(e.target as Node),
+				)
+			) {
 				handler(e);
 			}
 		};

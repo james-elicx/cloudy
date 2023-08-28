@@ -1,4 +1,4 @@
-import { getBucketItems } from '@/utils/r2';
+import { getBucketItems } from '@/utils/cf';
 import { formatFullPath } from '@/utils';
 import { BucketFilesTable } from '@/components';
 import type { RouteParams } from './layout';
