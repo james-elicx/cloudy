@@ -26,7 +26,7 @@
 		"tailwind-merge": "^1.14.0"
 	},
 	"devDependencies": {
-		"@cloudflare/next-on-pages": "https://prerelease-registry.devprod.cloudflare.dev/next-on-pages/runs/5993606051/npm-package-next-on-pages-445",
+		"@cloudflare/next-on-pages": "https://prerelease-registry.devprod.cloudflare.dev/next-on-pages/runs/6000424171/npm-package-next-on-pages-445",
 		"@cloudflare/workers-types": "^4.20230821.0",
 		"@tsconfig/strictest": "^2.0.1",
 		"@types/node": "20.5.6",

@@ -1,4 +1,4 @@
-import { getBucketFromEnv } from '@/utils/r2';
+import { getBucketFromEnv } from '@/utils/cf';
 
 export const runtime = 'edge';
 

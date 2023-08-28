@@ -30,7 +30,7 @@ export const NavLink = ({
 		: pathname.startsWith(hrefWithLeadingSlash);
 
 	const className = twMerge(
-		'border-1 border-transparent -ml-1 flex flex-row items-center gap-1 rounded-md px-1 font-medium focus:border-accent dark:focus:border-accent-dark',
+		'border-1 border-transparent -ml-1 flex flex-row items-center gap-1 rounded-md px-1 font-normal focus:border-accent dark:focus:border-accent-dark',
 		(active || isActivePathname) && 'bg-secondary dark:bg-secondary-dark',
 		passedClassName,
 	);

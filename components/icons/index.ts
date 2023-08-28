@@ -22,4 +22,5 @@ export {
 	FileAudio,
 	FileImage,
 	FileVideo,
+	Monitor,
 } from '@phosphor-icons/react';

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { LocationProvider, ThemeProvider, SideNav, TopNav } from '@/components';
 import './globals.css';
-import { getBucketsFromEnv } from '@/utils/r2';
+import { getBucketsFromEnv } from '@/utils/cf';
 
 export const runtime = 'edge';
 
