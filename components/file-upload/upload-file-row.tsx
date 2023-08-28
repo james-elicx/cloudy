@@ -73,7 +73,7 @@ export const UploadFileRow = ({ bucket, dirPath, file }: Props) => {
 	const uploadFile = useCallback(async () => {
 		const reqInstance = req.current;
 
-		const key = `${dirPath}/${file.name}`.replace(/\/+/g, '/');
+		const key = `${dirPath}/${file.name}`.replace(/\/+/g, '/').replace(/^\//, '');
 		const fileInfo = btoa(JSON.stringify({ bucket, key }));
 
 		reqInstance?.open('PUT', `/api/bucket/${bucket}`);
@@ -96,7 +96,7 @@ export const UploadFileRow = ({ bucket, dirPath, file }: Props) => {
 					<span>{bytesToString(file.size)}</span>
 				</div>
 
-				{error && <span className="text-status-error text-xs">{error}</span>}
+				{error && <span className="text-xs text-status-error">{error}</span>}
 			</div>
 
 			<button
