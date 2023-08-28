@@ -5,16 +5,17 @@ import { twMerge } from 'tailwind-merge';
 import { useRef, useState } from 'react';
 import { useOnClickOutside } from '@/utils/hooks';
 import { bytesToString, parseFileType } from '@/utils';
-import { useFilePreview } from '../providers';
+import { useFilePreview, useLocation } from '../providers';
 import { fileIconsMap } from './file-icons';
 
-type Props = { bucketName: string; path: string } & (
+type Props = { path: string } & (
 	| { type: 'directory'; file?: never }
 	| { type: 'file'; file: R2Object }
 );
 
-export const BucketFileRow = ({ bucketName, path, type, file }: Props): JSX.Element => {
+export const BucketFileRow = ({ path, type, file }: Props): JSX.Element => {
 	const router = useRouter();
+	const { currentBucket } = useLocation();
 	const { triggerFilePreview } = useFilePreview();
 
 	const [isFocused, setIsFocused] = useState(false);
@@ -29,7 +30,7 @@ export const BucketFileRow = ({ bucketName, path, type, file }: Props): JSX.Elem
 
 	const handleDoubleClick = () => {
 		if (type === 'directory') {
-			router.push(`/bucket/${bucketName}/${path}`);
+			router.push(`/bucket/${currentBucket?.raw}/${path}`);
 		} else {
 			triggerFilePreview(file.key);
 		}
