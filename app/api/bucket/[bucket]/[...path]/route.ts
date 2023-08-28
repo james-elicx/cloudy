@@ -13,7 +13,7 @@ export const GET = async (
 		return new Response('Failed to find bucket', { status: 400 });
 	}
 
-	const object = await bucket.get(`/${path.join('/')}`);
+	const object = await bucket.get(path.join('/'));
 
 	if (!object) {
 		return new Response('Not found', { status: 404 });
@@ -36,7 +36,7 @@ export const POST = async (
 		return new Response('Failed to find bucket', { status: 400 });
 	}
 
-	const object = await bucket.head(`/${path.join('/')}`);
+	const object = await bucket.head(path.join('/'));
 
 	if (!object) {
 		return new Response('Not found', { status: 404 });

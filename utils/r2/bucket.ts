@@ -9,7 +9,7 @@ export const formatBucketName = (bucketName: string): string =>
 export const getBucketsFromEnv = (): Record<string, R2Bucket> => {
 	// In development, use `cf-bindings-proxy` to get the bucket.
 	if (process.env.NODE_ENV === 'development') {
-		return { MY_R2: binding<R2Bucket>('MY_R2') };
+		return { 'cloudy-demo': binding<R2Bucket>('cloudy-demo') };
 	}
 
 	// In production, use the environment variables.
@@ -38,7 +38,7 @@ export const getBucketItems = async (
 	{ directory, cursor, limit }: { directory: string; cursor?: string; limit?: number },
 ): Promise<R2Objects> =>
 	binding<R2Bucket>(bucketName).list({
-		prefix: `/${directory.replace(/^\/|\/$/g, '')}/`.replace(/\/\//g, '/'),
+		prefix: `${directory.replace(/^\/|\/$/g, '')}/`.replace(/\/\//g, '/').replace(/^\/$/, ''),
 		delimiter: '/',
 		cursor,
 		limit,

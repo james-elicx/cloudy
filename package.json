@@ -14,7 +14,7 @@
 		"pages:build": "npx @cloudflare/next-on-pages",
 		"pages:dev": "pnpm exec wrangler pages dev .vercel/output/static --compatibility-flag=nodejs_compat",
 		"pages:deploy": "pnpm exec wrangler pages deploy .vercel/output/static",
-		"proxy": "pnpm exec cf-bindings-proxy --r2=MY_R2"
+		"proxy": "pnpm exec cf-bindings-proxy --r2=cloudy-demo"
 	},
 	"dependencies": {
 		"@phosphor-icons/react": "^2.0.10",
