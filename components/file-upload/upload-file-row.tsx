@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { bytesToString } from '@/utils';
+import type { FileInfo } from '@/app/api/bucket/[bucket]/route';
 import { UploadSimple } from '../icons';
 
 type Props = {
@@ -74,13 +75,14 @@ export const UploadFileRow = ({ bucket, dirPath, file }: Props) => {
 		const reqInstance = req.current;
 
 		const key = `${dirPath}/${file.name}`.replace(/\/+/g, '/').replace(/^\//, '');
-		const fileInfo = btoa(JSON.stringify({ bucket, key, lastMod: file.lastModified }));
+		const fileInfo: FileInfo = { bucket: bucket as string, key, lastMod: file.lastModified };
+		const fileInfoStr = btoa(JSON.stringify(fileInfo));
 
 		reqInstance?.open('PUT', `/api/bucket/${bucket}`);
 		reqInstance?.setRequestHeader('x-content-type', file.type);
 
 		const formData = new FormData();
-		formData.append(fileInfo, file);
+		formData.append(fileInfoStr, file);
 		reqInstance?.send(formData);
 	}, [bucket, dirPath, file]);
 

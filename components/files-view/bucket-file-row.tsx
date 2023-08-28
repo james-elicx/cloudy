@@ -62,9 +62,9 @@ export const BucketFileRow = ({ bucketName, path, type, file }: Props): JSX.Elem
 
 			<td>{type === 'file' ? bytesToString(file.size) : ''}</td>
 
-			<td>
-				{type === 'file' && file.customMetadata?.['lastmod']
-					? new Date(file.customMetadata['lastmod']).toLocaleString()
+			<td suppressHydrationWarning>
+				{type === 'file' && file.customMetadata?.['mtime']
+					? new Date(Number(file.customMetadata['mtime'])).toLocaleString()
 					: ''}
 			</td>
 		</tr>
