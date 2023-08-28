@@ -1,11 +1,6 @@
 import { binding } from 'cf-bindings-proxy';
 import { notFound } from 'next/navigation';
 
-export const formatBucketName = (bucketName: string): string =>
-	bucketName
-		.replace(/[-_]/g, ' ')
-		.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase());
-
 export const getBucketsFromEnv = (): Record<string, R2Bucket> => {
 	// In development, use `cf-bindings-proxy` to get the bucket.
 	if (process.env.NODE_ENV === 'development') {
@@ -46,6 +41,3 @@ export const getBucketItems = async (
 		// @ts-ignore - this is a bug in the cloudflare workers types
 		include: ['httpMetadata', 'customMetadata'],
 	});
-
-export const formatFullPath = (path: string[]) =>
-	path.flatMap((p) => decodeURIComponent(p).split('/')) as [bucketName: string, ...path: string[]];

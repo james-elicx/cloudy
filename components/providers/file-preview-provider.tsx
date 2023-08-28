@@ -10,7 +10,7 @@ import {
 	useState,
 } from 'react';
 import { useOnClickOutside } from '@/utils/hooks';
-import { addLeadingSlash } from './location-provider';
+import { addLeadingSlash } from '@/utils';
 import { XCircle } from '../icons';
 
 export type IFilePreviewContext = {

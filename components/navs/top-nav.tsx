@@ -2,21 +2,14 @@
 
 import { useRouter, useSelectedLayoutSegments } from 'next/navigation';
 import { useMemo } from 'react';
-import { formatBucketName, formatFullPath } from '@/utils/r2';
 import Link from 'next/link';
+import { addLeadingSlash, formatFullPath, formatBucketName } from '@/utils';
 import { ThemeToggle } from '../providers';
 import { ArrowLeft, ArrowRight, CaretRight } from '../icons';
-import { addLeadingSlash } from './nav-link';
 import { UploadFileButton } from '../file-upload';
 
-type TopNavSectionProps = { children: React.ReactNode; doubleGap?: boolean; singleGap?: boolean };
-const TopNavSection = ({ children, doubleGap, singleGap }: TopNavSectionProps): JSX.Element => (
-	<div
-		// eslint-disable-next-line no-nested-ternary
-		className={`flex flex-row items-center ${doubleGap ? 'gap-4' : singleGap ? 'gap-1' : 'gap-2'}`}
-	>
-		{children}
-	</div>
+const TopNavSection = ({ children }: { children: React.ReactNode }): JSX.Element => (
+	<div className="flex flex-row items-center gap-4">{children}</div>
 );
 
 type FormattedSegment = { segment: string; path: string };
@@ -50,8 +43,8 @@ export const TopNav = (): JSX.Element => {
 
 	return (
 		<div className="flex max-h-[3rem] min-h-[3rem] flex-row items-center justify-between border-b-1 border-secondary px-4 py-2 dark:border-secondary-dark">
-			<TopNavSection doubleGap>
-				<TopNavSection>
+			<TopNavSection>
+				<div className="flex flex-row items-center gap-2">
 					<button type="button" onClick={() => router.back()}>
 						<ArrowLeft weight="bold" className="h-5 w-5" />
 					</button>
@@ -59,9 +52,9 @@ export const TopNav = (): JSX.Element => {
 					<button type="button" onClick={() => router.forward()}>
 						<ArrowRight weight="bold" className="h-5 w-5" />
 					</button>
-				</TopNavSection>
+				</div>
 
-				<TopNavSection singleGap>
+				<div className="flex flex-row items-center gap-1">
 					{pathSegments.map(({ segment, path }, index) => (
 						<div className="flex flex-row items-center gap-1" key={`${segment}-${path}`}>
 							{index !== 0 && <CaretRight weight="bold" className="h-3 w-3" />}
@@ -76,10 +69,10 @@ export const TopNav = (): JSX.Element => {
 							</Link>
 						</div>
 					))}
-				</TopNavSection>
+				</div>
 			</TopNavSection>
 
-			<TopNavSection doubleGap>
+			<TopNavSection>
 				<UploadFileButton />
 
 				<ThemeToggle />

@@ -18,7 +18,7 @@ export const PUT = async (
 	const formData = await req.formData();
 
 	for (const [rawFileInfo, file] of formData) {
-		let fileInfo: { bucket: string; key: string };
+		let fileInfo: { bucket: string; key: string; lastmod?: number };
 		try {
 			const parsedInfo = JSON.parse(atob(rawFileInfo));
 			if (
@@ -43,6 +43,7 @@ export const PUT = async (
 				httpMetadata: {
 					contentType: asFile.type,
 				},
+				customMetadata: fileInfo.lastmod ? { lastmod: fileInfo.lastmod?.toString() } : {},
 			});
 		} catch (e) {
 			const msg = e instanceof Error ? e.message : 'Failed to upload file to bucket';

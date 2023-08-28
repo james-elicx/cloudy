@@ -1,11 +1,13 @@
 'use client';
 
+import { formatBucketName } from '@/utils';
 import { notFound } from 'next/navigation';
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
+type Bucket = { raw: string; parsed: string };
 export type ILocationContext = {
-	buckets: string[];
-	bucket: string | null;
+	buckets: Bucket[];
+	currentBucket: Bucket | null;
 	setBucket: (bucket: string) => void;
 	location: string[];
 	setLocation: (location: string[]) => void;
@@ -13,7 +15,7 @@ export type ILocationContext = {
 
 const LocationContext = createContext<ILocationContext>({
 	buckets: [],
-	bucket: null,
+	currentBucket: null,
 	setBucket: () => {},
 	location: [],
 	setLocation: () => {},
@@ -27,15 +29,20 @@ type Props = {
 };
 
 export const LocationProvider = ({ buckets: passedBuckets, children }: Props): JSX.Element => {
-	const buckets = useMemo<string[]>(() => passedBuckets, [passedBuckets]);
+	const buckets = useMemo<Bucket[]>(
+		() => passedBuckets.map((b) => ({ raw: b, parsed: formatBucketName(b) })),
+		[passedBuckets],
+	);
 
-	const [activeBucket, setActiveBucket] = useState<string | null>(null);
+	const [currentBucket, setCurrentBucket] = useState<Bucket | null>(null);
 	const [location, setLocation] = useState<string[]>([]);
 
 	const setBucket = useCallback(
 		(bucketName: string) => {
-			if (buckets.includes(bucketName)) {
-				setActiveBucket(bucketName);
+			const foundBucket = buckets.find((b) => b.raw === bucketName);
+
+			if (foundBucket) {
+				setCurrentBucket(foundBucket);
 			} else {
 				notFound();
 			}
@@ -46,8 +53,8 @@ export const LocationProvider = ({ buckets: passedBuckets, children }: Props): J
 	return (
 		<LocationContext.Provider
 			value={useMemo(
-				() => ({ buckets, bucket: activeBucket, setBucket, location, setLocation }),
-				[activeBucket, buckets, location, setBucket],
+				() => ({ buckets, currentBucket, setBucket, location, setLocation }),
+				[currentBucket, buckets, location, setBucket],
 			)}
 		>
 			{children}
@@ -56,6 +63,3 @@ export const LocationProvider = ({ buckets: passedBuckets, children }: Props): J
 };
 
 export type { Props as LocationProviderProps };
-
-export const addLeadingSlash = (path: string): string => (path.startsWith('/') ? path : `/${path}`);
-export const addTrailingSlash = (path: string): string => (path.endsWith('/') ? path : `${path}/`);

@@ -15,5 +15,11 @@ export {
 	CaretUp,
 	FolderSimple,
 	File,
+	FilePdf,
+	FileText,
+	FileCode,
+	FileZip,
+	FileAudio,
+	FileImage,
 	FileVideo,
 } from '@phosphor-icons/react';

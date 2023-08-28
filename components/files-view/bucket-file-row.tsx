@@ -3,9 +3,10 @@
 import { useRouter } from 'next/navigation';
 import { twMerge } from 'tailwind-merge';
 import { useRef, useState } from 'react';
-import { useOnClickOutside, bytesToString } from '@/utils/hooks';
-import { File, FolderSimple } from '../icons';
+import { useOnClickOutside } from '@/utils/hooks';
+import { bytesToString, parseFileType } from '@/utils';
 import { useFilePreview } from '../providers';
+import { fileIconsMap } from './file-icons';
 
 type Props = { bucketName: string; path: string } & (
 	| { type: 'directory'; file?: never }
@@ -21,7 +22,10 @@ export const BucketFileRow = ({ bucketName, path, type, file }: Props): JSX.Elem
 
 	useOnClickOutside(rowRef, () => setIsFocused(false));
 
-	const Icon = type === 'directory' ? FolderSimple : File;
+	const fileName = path.replace(/\/$/, '').replace(/.*\//, '');
+
+	const namedType = parseFileType(type, fileName, file?.httpMetadata?.contentType);
+	const Icon = fileIconsMap[namedType];
 
 	const handleDoubleClick = () => {
 		if (type === 'directory') {
@@ -35,7 +39,7 @@ export const BucketFileRow = ({ bucketName, path, type, file }: Props): JSX.Elem
 		<tr
 			role="button"
 			className={twMerge(
-				'cursor-default truncate text-sm [&>*]:py-2',
+				'cursor-default select-none truncate text-sm [&>*]:py-2',
 				'[&>*]:border-y-1 [&>*]:border-transparent [&>:first-child]:rounded-l-md [&>:first-child]:border-l-1 [&>:last-child]:rounded-r-md [&>:last-child]:border-r-1',
 				isFocused &&
 					'[&>*]:!border-accent [&>*]:!bg-secondary dark:[&>*]:!border-accent-dark dark:[&>*]:!bg-secondary-dark',
@@ -44,25 +48,25 @@ export const BucketFileRow = ({ bucketName, path, type, file }: Props): JSX.Elem
 			onDoubleClick={() => handleDoubleClick()}
 			ref={rowRef}
 		>
-			<td className="items-center justify-center">
+			<td>
 				<Icon weight="bold" className="mx-auto h-5 w-5" />
 			</td>
 
-			<td className="font-medium">{path.replace(/\/$/, '').replace(/.*\//, '')}</td>
+			<td className="font-medium">{fileName}</td>
 
-			<td className="">
-				{type === 'directory' ? 'Folder' : file.httpMetadata?.contentType ?? 'unknown'}
+			<td>
+				<span className="rounded-md bg-secondary-dark/10 px-1 py-0.5 text-xs text-secondary/80 dark:bg-secondary/10 dark:text-secondary-dark/80">
+					{namedType}
+				</span>
 			</td>
 
-			<td className="">{type === 'file' ? bytesToString(file.size) : ''}</td>
+			<td>{type === 'file' ? bytesToString(file.size) : ''}</td>
 
-			<td className="">
+			<td>
 				{type === 'file' && file.customMetadata?.['lastmod']
 					? new Date(file.customMetadata['lastmod']).toLocaleString()
 					: ''}
 			</td>
-
-			<td className="" aria-label="Filler" />
 		</tr>
 	);
 };
