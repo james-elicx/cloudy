@@ -14,11 +14,7 @@ const Page = async ({ params: { path: fullPath } }: Props) => {
 			{items.delimitedPrefixes.length === 0 && items.objects.length === 0 ? (
 				<span className="flex flex-grow items-center justify-center">No items found...</span>
 			) : (
-				<BucketFilesTable
-					bucketName={bucketName}
-					directories={items.delimitedPrefixes}
-					files={items.objects}
-				/>
+				<BucketFilesTable directories={items.delimitedPrefixes} files={items.objects} />
 			)}
 		</main>
 	);
