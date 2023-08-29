@@ -8,6 +8,12 @@ dependencies:
   '@phosphor-icons/react':
     specifier: ^2.0.10
     version: 2.0.10(react-dom@18.2.0)(react@18.2.0)
+  '@tanstack/react-table':
+    specifier: ^8.9.3
+    version: 8.9.3(react-dom@18.2.0)(react@18.2.0)
+  '@tanstack/react-virtual':
+    specifier: 3.0.0-beta.56
+    version: 3.0.0-beta.56(react@18.2.0)
   cf-bindings-proxy:
     specifier: ^0.4.0
     version: 0.4.0(@cloudflare/workers-types@4.20230821.0)(wrangler@3.6.0)
@@ -29,8 +35,8 @@ dependencies:
 
 devDependencies:
   '@cloudflare/next-on-pages':
-    specifier: https://prerelease-registry.devprod.cloudflare.dev/next-on-pages/runs/6000424171/npm-package-next-on-pages-445
-    version: '@prerelease-registry.devprod.cloudflare.dev/next-on-pages/runs/6000424171/npm-package-next-on-pages-445(vercel@32.1.0)(wrangler@3.6.0)'
+    specifier: 0.0.0-f764fff
+    version: 0.0.0-f764fff(vercel@32.1.0)(wrangler@3.6.0)
   '@cloudflare/workers-types':
     specifier: ^4.20230821.0
     version: 4.20230821.0
@@ -123,6 +129,31 @@ packages:
       }
     dependencies:
       mime: 3.0.0
+
+  /@cloudflare/next-on-pages@0.0.0-f764fff(vercel@32.1.0)(wrangler@3.6.0):
+    resolution:
+      {
+        integrity: sha512-YQTaBGDoC28gF9s0o5Zk8PqGL9jTvdMa/XhzALGFoEQiJ9HAT5oC9VekS9HJTn1ZjUbTbmDP9/gfJ/h8nItEfA==,
+      }
+    hasBin: true
+    peerDependencies:
+      vercel: ^30.0.0 || ^31.0.0 || ^32.0.0
+      wrangler: ^3.0.0
+    dependencies:
+      acorn: 8.10.0
+      ast-types: 0.14.2
+      chalk: 5.3.0
+      chokidar: 3.5.3
+      cookie: 0.5.0
+      esbuild: 0.15.18
+      js-yaml: 4.1.0
+      pcre-to-regexp: 1.1.0
+      semver: 7.5.4
+      vercel: 32.1.0
+      wrangler: 3.6.0
+      zod: 3.21.4
+      zodcli: 0.0.4(zod@3.21.4)
+    dev: true
 
   /@cloudflare/workerd-darwin-64@1.20230814.1:
     resolution:
@@ -895,6 +926,48 @@ packages:
       }
     dependencies:
       tslib: 2.6.2
+
+  /@tanstack/react-table@8.9.3(react-dom@18.2.0)(react@18.2.0):
+    resolution:
+      {
+        integrity: sha512-Ng9rdm3JPoSCi6cVZvANsYnF+UoGVRxflMb270tVj0+LjeT/ZtZ9ckxF6oLPLcKesza6VKBqtdF9mQ+vaz24Aw==,
+      }
+    engines: { node: '>=12' }
+    peerDependencies:
+      react: '>=16'
+      react-dom: '>=16'
+    dependencies:
+      '@tanstack/table-core': 8.9.3
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /@tanstack/react-virtual@3.0.0-beta.56(react@18.2.0):
+    resolution:
+      {
+        integrity: sha512-KKG/79i2zEwyNXmrNGen/FrI/XOHDj0PgIbauVpg6rmMk89MkoFGOsvNJm6FNieZrn2cQ4OHiozbwwV6XtO2yQ==,
+      }
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      '@tanstack/virtual-core': 3.0.0-beta.56
+      react: 18.2.0
+    dev: false
+
+  /@tanstack/table-core@8.9.3:
+    resolution:
+      {
+        integrity: sha512-NpHZBoHTfqyJk0m/s/+CSuAiwtebhYK90mDuf5eylTvgViNOujiaOaxNDxJkQQAsVvHWZftUGAx1EfO1rkKtLg==,
+      }
+    engines: { node: '>=12' }
+    dev: false
+
+  /@tanstack/virtual-core@3.0.0-beta.56:
+    resolution:
+      {
+        integrity: sha512-LlSDjGCexbqpIYIjop6fiTxvuK6BAEVLBi4e8hHNo54M5YMbyKxjSgf/bcOuUEgf6sv8mabH8naX3L7FxCcK1g==,
+      }
+    dev: false
 
   /@ts-morph/common@0.11.1:
     resolution:
@@ -7321,32 +7394,4 @@ packages:
     dependencies:
       typescript: 4.9.5
       zod: 3.21.4
-    dev: true
-
-  '@prerelease-registry.devprod.cloudflare.dev/next-on-pages/runs/6000424171/npm-package-next-on-pages-445(vercel@32.1.0)(wrangler@3.6.0)':
-    resolution:
-      {
-        tarball: https://prerelease-registry.devprod.cloudflare.dev/next-on-pages/runs/6000424171/npm-package-next-on-pages-445,
-      }
-    id: '@prerelease-registry.devprod.cloudflare.dev/next-on-pages/runs/6000424171/npm-package-next-on-pages-445'
-    name: '@cloudflare/next-on-pages'
-    version: 0.0.0-8afdf34
-    hasBin: true
-    peerDependencies:
-      vercel: ^30.0.0 || ^31.0.0 || ^32.0.0
-      wrangler: ^3.0.0
-    dependencies:
-      acorn: 8.10.0
-      ast-types: 0.14.2
-      chalk: 5.3.0
-      chokidar: 3.5.3
-      cookie: 0.5.0
-      esbuild: 0.15.18
-      js-yaml: 4.1.0
-      pcre-to-regexp: 1.1.0
-      semver: 7.5.4
-      vercel: 32.1.0
-      wrangler: 3.6.0
-      zod: 3.21.4
-      zodcli: 0.0.4(zod@3.21.4)
     dev: true

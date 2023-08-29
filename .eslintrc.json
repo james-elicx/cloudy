@@ -8,6 +8,8 @@
 
 		"no-console": "error",
 		"no-await-in-loop": "off",
-		"no-restricted-syntax": "off"
+		"no-restricted-syntax": "off",
+
+		"react/no-unstable-nested-components": "off"
 	}
 }
