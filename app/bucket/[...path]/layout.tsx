@@ -1,6 +1,6 @@
 import { validateBucketName } from '@/utils/cf';
 import { formatBucketName, formatFullPath } from '@/utils';
-import { FilePreviewProvider } from '@/components';
+import { FileExplorerProvider, FilePreviewProvider } from '@/components';
 import type { Metadata } from 'next';
 import { Ctx } from './ctx';
 
@@ -18,7 +18,10 @@ const Layout = ({ params: { path }, children }: Props): JSX.Element => {
 	return (
 		<>
 			<Ctx bucketName={bucketName} path={fullPath} />
-			<FilePreviewProvider bucketName={bucketName}>{children}</FilePreviewProvider>
+
+			<FileExplorerProvider>
+				<FilePreviewProvider bucketName={bucketName}>{children}</FilePreviewProvider>
+			</FileExplorerProvider>
 		</>
 	);
 };

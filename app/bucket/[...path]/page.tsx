@@ -1,6 +1,6 @@
 import { getBucketItems } from '@/utils/cf';
 import { formatFullPath } from '@/utils';
-import { BucketFilesTable } from '@/components';
+import { FilesTables } from '@/components';
 import type { RouteParams } from './layout';
 
 type Props = { params: RouteParams };
@@ -14,7 +14,7 @@ const Page = async ({ params: { path: fullPath } }: Props) => {
 			{items.delimitedPrefixes.length === 0 && items.objects.length === 0 ? (
 				<span className="flex flex-grow items-center justify-center">No items found...</span>
 			) : (
-				<BucketFilesTable directories={items.delimitedPrefixes} files={items.objects} />
+				<FilesTables directories={items.delimitedPrefixes} files={items.objects} />
 			)}
 		</main>
 	);

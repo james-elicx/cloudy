@@ -18,15 +18,17 @@
 	},
 	"dependencies": {
 		"@phosphor-icons/react": "^2.0.10",
+		"@tanstack/react-table": "^8.9.3",
+		"@tanstack/react-virtual": "3.0.0-beta.56",
+		"cf-bindings-proxy": "^0.4.0",
 		"next": "13.4.19",
 		"next-themes": "^0.2.1",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
-		"cf-bindings-proxy": "^0.4.0",
 		"tailwind-merge": "^1.14.0"
 	},
 	"devDependencies": {
-		"@cloudflare/next-on-pages": "https://prerelease-registry.devprod.cloudflare.dev/next-on-pages/runs/6000424171/npm-package-next-on-pages-445",
+		"@cloudflare/next-on-pages": "0.0.0-f764fff",
 		"@cloudflare/workers-types": "^4.20230821.0",
 		"@tsconfig/strictest": "^2.0.1",
 		"@types/node": "20.5.6",

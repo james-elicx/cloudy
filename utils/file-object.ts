@@ -1,3 +1,5 @@
+import { bytesToString } from './bytes-to-string';
+
 export type FileType =
 	| 'unknown'
 	| 'folder'
@@ -14,14 +16,8 @@ export type FileType =
 	| 'typescript'
 	| 'css';
 
-export const parseFileType = (
-	type: 'directory' | 'file',
-	name: string,
-	mimeType = 'unknown',
-): FileType => {
-	if (type === 'directory') return 'folder';
-
-	const fileExt = name.split('.').pop()?.toLowerCase();
+export const parseFileType = (path: string, mimeType = 'unknown'): FileType => {
+	const fileExt = path.split('.').pop()?.toLowerCase();
 
 	switch (mimeType) {
 		case /^image\/.*/.test(mimeType) && mimeType:
@@ -60,4 +56,26 @@ export const parseFileType = (
 					return 'unknown';
 			}
 	}
+};
+
+export const parseObject = (object: string | R2Object) => {
+	const isDirectory = typeof object === 'string';
+	const path = isDirectory ? object : object.key;
+
+	return {
+		isDirectory,
+		path,
+		getName: (): string => path.replace(/\/$/, '').replace(/.*\//, ''),
+		getType: (): FileType =>
+			isDirectory ? 'folder' : parseFileType(object.key, object.httpMetadata?.contentType),
+		getSize: (): string => (isDirectory ? '' : bytesToString(object.size)),
+		getLastModified: (): Date | null => {
+			if (isDirectory) return null;
+
+			const lastMod = Number(object.customMetadata?.['mtime']);
+			if (Number.isNaN(lastMod)) return null;
+
+			return new Date(lastMod);
+		},
+	};
 };

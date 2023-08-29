@@ -1,1 +1,1 @@
-export { BucketFilesTable } from './bucket-files';
+export { FilesTables } from './files-table';
