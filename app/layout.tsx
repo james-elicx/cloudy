@@ -3,6 +3,7 @@ import localFont from 'next/font/local';
 import { LocationProvider, ThemeProvider, SideNav, TopNav } from '@/components';
 import './globals.css';
 import { getBucketsFromEnv } from '@/utils/cf';
+import { isAuthAvailable, getUser } from '@/utils/auth';
 
 export const runtime = 'edge';
 
@@ -40,26 +41,30 @@ export const metadata: Metadata = {
 
 type Props = { children: React.ReactNode };
 
-const buckets = getBucketsFromEnv();
+const Layout = async ({ children }: Props) => {
+	const buckets = getBucketsFromEnv();
+	const canAuth = isAuthAvailable();
+	const user = await getUser();
 
-const Layout = async ({ children }: Props) => (
-	<html lang="en">
-		<body className={TASAOrbiterText.variable}>
-			<ThemeProvider attribute="data-theme" defaultTheme="light">
-				<LocationProvider buckets={Object.keys(buckets)}>
-					<div className="flex flex-grow flex-row">
-						<SideNav />
+	return (
+		<html lang="en">
+			<body className={TASAOrbiterText.variable}>
+				<ThemeProvider attribute="data-theme" defaultTheme="light">
+					<LocationProvider buckets={Object.keys(buckets)}>
+						<div className="flex flex-grow flex-row">
+							<SideNav user={user} canAuth={canAuth} />
 
-						<div className="flex h-screen flex-grow flex-col overflow-y-auto">
-							<TopNav />
+							<div className="flex h-screen flex-grow flex-col overflow-y-auto">
+								<TopNav />
 
-							{children}
+								{children}
+							</div>
 						</div>
-					</div>
-				</LocationProvider>
-			</ThemeProvider>
-		</body>
-	</html>
-);
+					</LocationProvider>
+				</ThemeProvider>
+			</body>
+		</html>
+	);
+};
 
 export default Layout;

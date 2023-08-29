@@ -25,6 +25,7 @@
 		"next-themes": "^0.2.1",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
+		"next-auth": "0.0.0-manual.ffd05533",
 		"tailwind-merge": "^1.14.0"
 	},
 	"devDependencies": {
@@ -45,5 +46,10 @@
 		"typescript": "5.2.2",
 		"vercel": "^32.1.0",
 		"wrangler": "^3.6.0"
+	},
+	"pnpm": {
+		"overrides": {
+			"@auth/core": "0.12.0"
+		}
 	}
 }

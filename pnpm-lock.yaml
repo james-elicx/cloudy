@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@auth/core': 0.12.0
+
 dependencies:
   '@phosphor-icons/react':
     specifier: ^2.0.10
@@ -20,6 +23,9 @@ dependencies:
   next:
     specifier: 13.4.19
     version: 13.4.19(react-dom@18.2.0)(react@18.2.0)
+  next-auth:
+    specifier: 0.0.0-manual.ffd05533
+    version: 0.0.0-manual.ffd05533(next@13.4.19)(react@18.2.0)
   next-themes:
     specifier: ^0.2.1
     version: 0.2.1(next@13.4.19)(react-dom@18.2.0)(react@18.2.0)
@@ -102,6 +108,25 @@ packages:
       }
     engines: { node: '>=10' }
     dev: true
+
+  /@auth/core@0.12.0:
+    resolution:
+      {
+        integrity: sha512-XYipdAc/nKu014VOgpcPyLlj1ghWlnwyloaB1UjQd9ElZRZQ9YpSizzXGLON23t/a0FyabOBBl0/awD2tW58Rg==,
+      }
+    peerDependencies:
+      nodemailer: ^6.8.0
+    peerDependenciesMeta:
+      nodemailer:
+        optional: true
+    dependencies:
+      '@panva/hkdf': 1.1.1
+      cookie: 0.5.0
+      jose: 4.14.4
+      oauth4webapi: 2.3.0
+      preact: 10.11.3
+      preact-render-to-string: 5.2.3(preact@10.11.3)
+    dev: false
 
   /@babel/runtime@7.12.1:
     resolution:
@@ -864,6 +889,13 @@ packages:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.15.0
     dev: true
+
+  /@panva/hkdf@1.1.1:
+    resolution:
+      {
+        integrity: sha512-dhPeilub1NuIG0X5Kvhh9lH4iW3ZsHlnzwgwbOlgwQ2wG1IqFzsgHqmKPk3WzsdWAeaxKJxgM0+W433RmN45GA==,
+      }
+    dev: false
 
   /@phosphor-icons/react@2.0.10(react-dom@18.2.0)(react@18.2.0):
     resolution:
@@ -4910,6 +4942,13 @@ packages:
     hasBin: true
     dev: true
 
+  /jose@4.14.4:
+    resolution:
+      {
+        integrity: sha512-j8GhLiKmUAh+dsFXlX1aJCbt5KMibuKb+d7j1JaOJG6s2UjX1PQlW+OKB/sD4a/5ZYF4RcmYmLSndOoU3Lt/3g==,
+      }
+    dev: false
+
   /js-tokens@4.0.0:
     resolution:
       {
@@ -5327,6 +5366,24 @@ packages:
       }
     dev: true
 
+  /next-auth@0.0.0-manual.ffd05533(next@13.4.19)(react@18.2.0):
+    resolution:
+      {
+        integrity: sha512-oTdpOP93rzABms/Qgp3z0udQG3tCZ3JxOCnwU04xLgX/xnC8+HuDHct7IcEpz+zxhZp6jxN0tdVkMCs5kubUfw==,
+      }
+    peerDependencies:
+      next: ^13.4.13
+      nodemailer: ^6.6.5
+      react: ^18.2.0
+    peerDependenciesMeta:
+      nodemailer:
+        optional: true
+    dependencies:
+      '@auth/core': 0.12.0
+      next: 13.4.19(react-dom@18.2.0)(react@18.2.0)
+      react: 18.2.0
+    dev: false
+
   /next-themes@0.2.1(next@13.4.19)(react-dom@18.2.0)(react@18.2.0):
     resolution:
       {
@@ -5502,6 +5559,13 @@ packages:
       gauge: 3.0.2
       set-blocking: 2.0.0
     dev: true
+
+  /oauth4webapi@2.3.0:
+    resolution:
+      {
+        integrity: sha512-JGkb5doGrwzVDuHwgrR4nHJayzN4h59VCed6EW8Tql6iHDfZIabCJvg6wtbn5q6pyB2hZruI3b77Nudvq7NmvA==,
+      }
+    dev: false
 
   /object-assign@4.1.1:
     resolution:
@@ -5904,6 +5968,25 @@ packages:
       source-map-js: 1.0.2
     dev: true
 
+  /preact-render-to-string@5.2.3(preact@10.11.3):
+    resolution:
+      {
+        integrity: sha512-aPDxUn5o3GhWdtJtW0svRC2SS/l8D9MAgo2+AWml+BhDImb27ALf04Q2d+AHqUUOc6RdSXFIBVa2gxzgMKgtZA==,
+      }
+    peerDependencies:
+      preact: '>=10'
+    dependencies:
+      preact: 10.11.3
+      pretty-format: 3.8.0
+    dev: false
+
+  /preact@10.11.3:
+    resolution:
+      {
+        integrity: sha512-eY93IVpod/zG3uMF22Unl8h9KkrcKIRs2EGar8hwLZZDU1lkjph303V9HZBwufh2s736U6VXuhD109LYqPoffg==,
+      }
+    dev: false
+
   /prebuild-install@7.1.1:
     resolution:
       {
@@ -6017,6 +6100,13 @@ packages:
       }
     engines: { node: '>=6' }
     dev: true
+
+  /pretty-format@3.8.0:
+    resolution:
+      {
+        integrity: sha512-WuxUnVtlWL1OfZFQFuqvnvs6MiAGk9UNsBostyBOB0Is9wb5uRESevA6rnl/rkksXaGX3GzZhPup5d6Vp1nFew==,
+      }
+    dev: false
 
   /pretty-ms@7.0.1:
     resolution:

@@ -2,14 +2,20 @@
 
 import { useRef } from 'react';
 import { useOnClickOutside } from '@/utils/hooks';
+import { signIn, signOut } from 'next-auth/react';
+import type { Session } from 'next-auth';
 import { CaretDown } from '../icons';
 
-export const UserDropdown = (): JSX.Element => {
+type Props = { user: Session['user']; canAuth: boolean };
+
+export const UserDropdown = ({ user, canAuth }: Props): JSX.Element => {
 	const dialog = useRef<HTMLDialogElement>(null);
 	const innerRef = useRef<HTMLDivElement>(null);
 	const btnRef = useRef<HTMLButtonElement>(null);
 
 	useOnClickOutside([innerRef, btnRef], () => dialog.current?.close());
+
+	const name = user?.name ?? user?.email ?? 'Guest';
 
 	return (
 		<div className="relative">
@@ -19,7 +25,7 @@ export const UserDropdown = (): JSX.Element => {
 				onClick={() => (dialog.current?.open ? dialog.current?.close() : dialog.current?.show())}
 				ref={btnRef}
 			>
-				Guest <CaretDown weight="bold" className="h-4 w-4" />
+				{name} <CaretDown weight="bold" className="h-4 w-4" />
 			</button>
 
 			<dialog
@@ -31,17 +37,19 @@ export const UserDropdown = (): JSX.Element => {
 						type="button"
 						className="flex w-full flex-row items-center truncate rounded-md border-1 border-transparent px-2 py-1 hover:border-accent/60 dark:hover:border-accent-dark/60"
 					>
-						Guest
+						{name}
 					</button>
 
 					<hr className="border-accent/20 dark:border-accent-dark/20" />
 
 					<button
-						disabled
+						title={!canAuth ? 'Auth is not available' : ''}
+						disabled={!canAuth}
 						type="button"
-						className="flex w-full cursor-not-allowed flex-row items-center justify-center rounded-md border-1 border-transparent px-2 py-1 hover:border-accent/60 disabled:text-secondary/50 dark:hover:border-accent-dark/60 dark:disabled:text-secondary-dark/50"
+						className="flex w-full flex-row items-center justify-center rounded-md border-1 border-transparent px-2 py-1 hover:border-accent/60 disabled:cursor-not-allowed disabled:text-secondary/50 dark:hover:border-accent-dark/60 dark:disabled:text-secondary-dark/50"
+						onClick={() => canAuth && (user ? signOut() : signIn())}
 					>
-						Sign In
+						{user ? 'Sign Out' : 'Sign In'}
 					</button>
 				</div>
 			</dialog>
