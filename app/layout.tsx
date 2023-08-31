@@ -2,8 +2,9 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { LocationProvider, ThemeProvider, SideNav, TopNav } from '@/components';
 import './globals.css';
-import { getBucketsFromEnv } from '@/utils/cf';
-import { isAuthAvailable, getUser } from '@/utils/auth';
+import { getBuckets } from '@/utils/cf';
+import { AuthProvider } from '@/components/providers/auth-provider';
+import { getUser } from '@/utils/auth';
 
 export const runtime = 'edge';
 
@@ -19,7 +20,7 @@ const TASAOrbiterText = localFont({
 
 export const metadata: Metadata = {
 	title: {
-		default: 'Home',
+		default: 'Cloudy',
 		template: '%s | Cloudy',
 	},
 	description: 'File explorer for Cloudflare R2 Storage.',
@@ -42,26 +43,27 @@ export const metadata: Metadata = {
 type Props = { children: React.ReactNode };
 
 const Layout = async ({ children }: Props) => {
-	const buckets = getBucketsFromEnv();
-	const canAuth = isAuthAvailable();
+	const buckets = await getBuckets();
 	const user = await getUser();
 
 	return (
 		<html lang="en">
 			<body className={TASAOrbiterText.variable}>
-				<ThemeProvider attribute="data-theme" defaultTheme="light">
-					<LocationProvider buckets={Object.keys(buckets)}>
-						<div className="flex flex-grow flex-row">
-							<SideNav user={user} canAuth={canAuth} />
+				<AuthProvider user={user}>
+					<ThemeProvider attribute="data-theme" defaultTheme="light">
+						<LocationProvider buckets={buckets}>
+							<div className="flex flex-grow flex-row bg-background dark:bg-background-dark">
+								<SideNav />
 
-							<div className="flex h-screen flex-grow flex-col overflow-y-auto">
-								<TopNav />
+								<div className="flex h-screen flex-grow flex-col overflow-y-auto">
+									<TopNav />
 
-								{children}
+									{children}
+								</div>
 							</div>
-						</div>
-					</LocationProvider>
-				</ThemeProvider>
+						</LocationProvider>
+					</ThemeProvider>
+				</AuthProvider>
 			</body>
 		</html>
 	);

@@ -23,4 +23,7 @@ export {
 	FileImage,
 	FileVideo,
 	Monitor,
+	GearSix,
+	DotsThreeOutlineVertical,
+	CaretCircleDown,
 } from '@phosphor-icons/react';

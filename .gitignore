@@ -37,3 +37,12 @@ next-env.d.ts
 # secrets
 .env*
 !.env*.example
+
+# migrations
+migrations/*
+!migrations/*.ts
+!migrations/*.sql
+migrations/*.d.ts
+
+# wrangler
+.wrangler/state/v3/d1

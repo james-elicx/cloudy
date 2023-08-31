@@ -13,20 +13,19 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { parseObject } from '@/utils';
 import { useOnClickOutside } from '@/utils/hooks';
 import { getFileIcon, getSortIcon } from './file-icons';
-import { FileRow } from './file-row';
-import { useFileExplorer } from '../providers';
+import { ObjectRow } from './object-row';
+import { useObjectExplorer } from '../providers';
 
 type Props = {
-	directories: string[];
-	files: R2Object[];
+	objects: (R2Object | string)[];
 };
 
 // TODO: Settings context that persists size and order of columns
 
-export const FilesTables = ({ directories, files }: Props): JSX.Element => {
+export const ObjectExplorer = ({ objects }: Props): JSX.Element => {
 	const parentRef = useRef<HTMLDivElement>(null);
 
-	const { clearSelectedObjects } = useFileExplorer();
+	const { clearSelectedObjects } = useObjectExplorer();
 
 	useOnClickOutside(parentRef, clearSelectedObjects);
 
@@ -94,7 +93,7 @@ export const FilesTables = ({ directories, files }: Props): JSX.Element => {
 	// TODO: Resizing
 
 	const table = useReactTable({
-		data: useMemo(() => [...directories, ...files], [directories, files]),
+		data: useMemo(() => objects, [objects]),
 		columns,
 		defaultColumn: { minSize: 100, maxSize: 1000 },
 		state: { sorting },
@@ -161,7 +160,7 @@ export const FilesTables = ({ directories, files }: Props): JSX.Element => {
 					const row = rows[virtualRow.index];
 					if (!row) return null;
 
-					return <FileRow key={row.id} row={row} virtualRowSize={virtualRow.size} />;
+					return <ObjectRow key={row.id} row={row} virtualRowSize={virtualRow.size} />;
 				})}
 			</div>
 		</div>

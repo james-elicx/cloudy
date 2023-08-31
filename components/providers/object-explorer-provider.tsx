@@ -2,27 +2,27 @@
 
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
-export type IFileExplorerContext = {
+export type IObjectExplorerContext = {
 	selectedObjects: Set<string>;
 	addSelectedObject: (key: string, shouldClear?: boolean) => void;
 	removeSelectedObject: (key: string) => void;
 	clearSelectedObjects: () => void;
 };
 
-const FileExplorerContext = createContext<IFileExplorerContext>({
+const ObjectExplorerContext = createContext<IObjectExplorerContext>({
 	selectedObjects: new Set<string>(),
 	addSelectedObject: () => {},
 	removeSelectedObject: () => {},
 	clearSelectedObjects: () => {},
 });
 
-export const useFileExplorer = () => useContext(FileExplorerContext);
+export const useObjectExplorer = () => useContext(ObjectExplorerContext);
 
 type Props = {
 	children: React.ReactNode;
 };
 
-export const FileExplorerProvider = ({ children }: Props): JSX.Element => {
+export const ObjectExplorerProvider = ({ children }: Props): JSX.Element => {
 	const [selectedObjects, setSelectedObjects] = useState<Set<string>>(new Set<string>());
 
 	const addSelectedObject = useCallback(
@@ -48,15 +48,15 @@ export const FileExplorerProvider = ({ children }: Props): JSX.Element => {
 	const clearSelectedObjects = useCallback(() => setSelectedObjects(new Set<string>()), []);
 
 	return (
-		<FileExplorerContext.Provider
+		<ObjectExplorerContext.Provider
 			value={useMemo(
 				() => ({ selectedObjects, addSelectedObject, removeSelectedObject, clearSelectedObjects }),
 				[addSelectedObject, removeSelectedObject, selectedObjects, clearSelectedObjects],
 			)}
 		>
 			{children}
-		</FileExplorerContext.Provider>
+		</ObjectExplorerContext.Provider>
 	);
 };
 
-export type { Props as FileExplorerProviderProps };
+export type { Props as ObjectExplorerProviderProps };
