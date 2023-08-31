@@ -34,6 +34,7 @@ const providers = deriveAuthProviders();
 const adapter = deriveDatabaseAdapter();
 
 const { handlers: nextAuthHandlers, auth } = NextAuth({
+	trustHost: true,
 	useSecureCookies: process.env.NODE_ENV === 'production',
 	session: {
 		strategy: 'jwt',
