@@ -33,11 +33,13 @@ export const UploadFileButton = (): JSX.Element => {
 
 	return (
 		<>
-			<button type="button" onClick={() => modal.current?.showModal()} disabled={!currentBucket}>
-				<UploadSimple
-					weight="bold"
-					className="h-5 w-5 transition-colors hover:text-accent dark:hover:text-accent-dark"
-				/>
+			<button
+				type="button"
+				onClick={() => modal.current?.showModal()}
+				disabled={!currentBucket}
+				className="transition-colors hover:text-accent disabled:cursor-not-allowed disabled:opacity-50 dark:hover:text-accent-dark"
+			>
+				<UploadSimple weight="bold" className="h-5 w-5" />
 			</button>
 
 			<dialog

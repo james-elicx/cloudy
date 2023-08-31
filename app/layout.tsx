@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { LocationProvider, ThemeProvider, SideNav, TopNav } from '@/components';
 import './globals.css';
-import { getBucketsFromEnv } from '@/utils/cf';
+import { getBuckets } from '@/utils/cf';
+import { AuthProvider } from '@/components/providers/auth-provider';
+import { getUser } from '@/utils/auth';
 
 export const runtime = 'edge';
 
@@ -18,7 +20,7 @@ const TASAOrbiterText = localFont({
 
 export const metadata: Metadata = {
 	title: {
-		default: 'Home',
+		default: 'Cloudy',
 		template: '%s | Cloudy',
 	},
 	description: 'File explorer for Cloudflare R2 Storage.',
@@ -40,26 +42,31 @@ export const metadata: Metadata = {
 
 type Props = { children: React.ReactNode };
 
-const buckets = getBucketsFromEnv();
+const Layout = async ({ children }: Props) => {
+	const buckets = await getBuckets();
+	const user = await getUser();
 
-const Layout = async ({ children }: Props) => (
-	<html lang="en">
-		<body className={TASAOrbiterText.variable}>
-			<ThemeProvider attribute="data-theme" defaultTheme="light">
-				<LocationProvider buckets={Object.keys(buckets)}>
-					<div className="flex flex-grow flex-row">
-						<SideNav />
+	return (
+		<html lang="en">
+			<body className={TASAOrbiterText.variable}>
+				<AuthProvider user={user}>
+					<ThemeProvider attribute="data-theme" defaultTheme="light">
+						<LocationProvider buckets={buckets}>
+							<div className="flex flex-grow flex-row bg-background dark:bg-background-dark">
+								<SideNav />
 
-						<div className="flex h-screen flex-grow flex-col overflow-y-auto">
-							<TopNav />
+								<div className="flex h-screen flex-grow flex-col overflow-y-auto">
+									<TopNav />
 
-							{children}
-						</div>
-					</div>
-				</LocationProvider>
-			</ThemeProvider>
-		</body>
-	</html>
-);
+									{children}
+								</div>
+							</div>
+						</LocationProvider>
+					</ThemeProvider>
+				</AuthProvider>
+			</body>
+		</html>
+	);
+};
 
 export default Layout;

@@ -121,7 +121,7 @@ export const UploadFileRow = ({ bucket, dirPath, file }: Props) => {
 						...(!isDone &&
 							isUploading && {
 								background:
-									'radial-gradient(closest-side, rgb(250 250 250 / var(--tw-bg-opacity)) 79%, transparent 80% 100%), conic-gradient(rgb(33 150 253 / var(--tw-text-opacity)) var(--upload-progress), rgb(33 150 253 / 0.3) 0)',
+									'radial-gradient(closest-side, rgb(250 250 250 / var(--tw-bg-opacity)) 79%, transparent 80% 100%), conic-gradient(rgb(33 150 253 / var(--tw-bg-opacity)) var(--upload-progress), rgb(33 150 253 / 0.3) 0)',
 							}),
 					} as React.CSSProperties
 				}

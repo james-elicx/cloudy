@@ -4,7 +4,7 @@
 
 @layer base {
 	body {
-		@apply flex min-h-screen flex-col bg-background font-sans text-base font-normal text-secondary dark:bg-background-dark dark:text-secondary-dark;
+		@apply flex min-h-screen flex-col !bg-background font-sans text-base font-normal !text-secondary dark:!bg-background-dark dark:!text-secondary-dark;
 	}
 }
 

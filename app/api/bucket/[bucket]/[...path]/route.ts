@@ -1,4 +1,4 @@
-import { getBucketFromEnv } from '@/utils/cf';
+import { getBucket } from '@/utils/cf';
 
 export const runtime = 'edge';
 
@@ -8,9 +8,9 @@ export const GET = async (
 	_req: Request,
 	{ params: { bucket: bucketName, path } }: { params: Params },
 ) => {
-	const bucket = getBucketFromEnv(bucketName);
+	const bucket = await getBucket(bucketName);
 	if (!bucket) {
-		return new Response('Failed to find bucket', { status: 400 });
+		return new Response('Unable to read bucket', { status: 400 });
 	}
 
 	const object = await bucket.get(path.join('/'));
@@ -31,9 +31,9 @@ export const POST = async (
 	_req: Request,
 	{ params: { bucket: bucketName, path } }: { params: Params },
 ) => {
-	const bucket = getBucketFromEnv(bucketName);
+	const bucket = await getBucket(bucketName);
 	if (!bucket) {
-		return new Response('Failed to find bucket', { status: 400 });
+		return new Response('Unable to read bucket', { status: 400 });
 	}
 
 	const object = await bucket.head(path.join('/'));

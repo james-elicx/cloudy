@@ -5,18 +5,18 @@ import { twMerge } from 'tailwind-merge';
 import { parseObject } from '@/utils';
 import type { Row } from '@tanstack/react-table';
 import { flexRender } from '@tanstack/react-table';
-import { useFileExplorer, useFilePreview, useLocation } from '../providers';
+import { useObjectExplorer, useFilePreview, useLocation } from '../providers';
 
 type Props = {
 	row: Row<R2Object | string>;
 	virtualRowSize: number;
 };
 
-export const FileRow = ({ row, virtualRowSize }: Props): JSX.Element => {
+export const ObjectRow = ({ row, virtualRowSize }: Props): JSX.Element => {
 	const router = useRouter();
 	const { currentBucket } = useLocation();
 
-	const { selectedObjects, addSelectedObject } = useFileExplorer();
+	const { selectedObjects, addSelectedObject } = useObjectExplorer();
 	const { triggerFilePreview } = useFilePreview();
 
 	const object = parseObject(row.original);
@@ -73,4 +73,4 @@ export const FileRow = ({ row, virtualRowSize }: Props): JSX.Element => {
 	);
 };
 
-export type { Props as BucketFileRowProps };
+export type { Props as ObjectRowProps };

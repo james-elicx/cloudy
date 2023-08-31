@@ -14,18 +14,32 @@
 		"pages:build": "npx @cloudflare/next-on-pages",
 		"pages:dev": "pnpm exec wrangler pages dev .vercel/output/static --compatibility-flag=nodejs_compat",
 		"pages:deploy": "pnpm exec wrangler pages deploy .vercel/output/static",
-		"proxy": "pnpm exec cf-bindings-proxy --r2=cloudy-demo"
+		"migrations:create": "tsx ./utils/db/migrations.ts create",
+		"migrations:compile": "tsx ./utils/db/migrations.ts compile",
+		"migrations:list": "pnpm exec wrangler d1 migrations list",
+		"migrations:apply": "pnpm exec wrangler d1 migrations apply",
+		"proxy": "pnpm exec cf-bindings-proxy --r2=cloudy-demo --d1=CLOUDY_D1_LOCAL --local",
+		"proxy:d1:execute": "pnpm exec wrangler d1 execute CLOUDY_D1_LOCAL --local --config=wrangler.dev.toml --command",
+		"proxy:migrations:list": "pnpm exec wrangler d1 migrations list CLOUDY_D1_LOCAL --local --config=wrangler.dev.toml",
+		"proxy:migrations:apply": "pnpm exec wrangler d1 migrations apply CLOUDY_D1_LOCAL --local --config=wrangler.dev.toml"
 	},
 	"dependencies": {
+		"@auth/kysely-adapter": "^0.1.1",
 		"@phosphor-icons/react": "^2.0.10",
+		"@tanstack/react-form": "^0.0.12",
 		"@tanstack/react-table": "^8.9.3",
 		"@tanstack/react-virtual": "3.0.0-beta.56",
-		"cf-bindings-proxy": "^0.4.0",
+		"cf-bindings-proxy": "^0.4.1",
+		"kysely": "^0.26.3",
 		"next": "13.4.19",
+		"next-auth": "0.0.0-manual.ffd05533",
+		"next-safe-action": "^3.0.1",
 		"next-themes": "^0.2.1",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
-		"tailwind-merge": "^1.14.0"
+		"server-only": "^0.0.1",
+		"tailwind-merge": "^1.14.0",
+		"zod": "^3.22.2"
 	},
 	"devDependencies": {
 		"@cloudflare/next-on-pages": "0.0.0-f764fff",
@@ -42,8 +56,14 @@
 		"prettier": "^3.0.2",
 		"prettier-plugin-tailwindcss": "^0.5.3",
 		"tailwindcss": "3.3.3",
+		"tsx": "^3.12.7",
 		"typescript": "5.2.2",
 		"vercel": "^32.1.0",
 		"wrangler": "^3.6.0"
+	},
+	"pnpm": {
+		"overrides": {
+			"@auth/core": "0.12.0"
+		}
 	}
 }

@@ -3,7 +3,7 @@
 import { useRouter, useSelectedLayoutSegments } from 'next/navigation';
 import { useMemo } from 'react';
 import Link from 'next/link';
-import { addLeadingSlash, formatFullPath, formatBucketName } from '@/utils';
+import { addLeadingSlash, formatFullPath, formatBucketName, toTitleCase } from '@/utils';
 import { ThemeToggle } from '../providers';
 import { ArrowLeft, ArrowRight, CaretRight } from '../icons';
 import { UploadFileButton } from '../file-upload';
@@ -24,7 +24,13 @@ const formatSegments = (segments: string[]) => {
 	const firstIsBucket = allSegments[0] === 'bucket';
 
 	let formattedSegments = allSegments.map((segment, i) => ({
-		segment: i === 1 && firstIsBucket ? formatBucketName(segment) : segment,
+		segment:
+			// eslint-disable-next-line no-nested-ternary
+			i === 1 && firstIsBucket
+				? formatBucketName(segment)
+				: i === 0
+				? toTitleCase(segment)
+				: segment,
 		path: addLeadingSlash(allSegments.slice(0, i + 1).join('/')),
 	}));
 	if (firstIsBucket) formattedSegments = formattedSegments.slice(1);

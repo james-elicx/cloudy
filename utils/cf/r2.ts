@@ -1,5 +1,7 @@
 import { binding } from 'cf-bindings-proxy';
-import { notFound } from 'next/navigation';
+import { cache } from 'react';
+import { getUser, isAuthAvailable } from '../auth';
+import { q } from '../db';
 
 export const getBucketsFromEnv = (): Record<string, R2Bucket> => {
 	// In development, use `cf-bindings-proxy` to get the bucket.
@@ -17,15 +19,9 @@ export const getBucketsFromEnv = (): Record<string, R2Bucket> => {
 	);
 };
 
-export const getBucketFromEnv = (bucketName: string): R2Bucket | null | undefined => {
+const getBucketFromEnv = (bucketName: string): R2Bucket | null | undefined => {
 	const buckets = getBucketsFromEnv();
 	return bucketName in buckets ? buckets[bucketName] : null;
-};
-
-export const validateBucketName = (bucketName?: string): void => {
-	if (!(bucketName && !!getBucketFromEnv(bucketName))) {
-		notFound();
-	}
 };
 
 export const getBucketItems = async (
@@ -41,3 +37,42 @@ export const getBucketItems = async (
 		// @ts-ignore - this is a bug in the cloudflare workers types
 		include: ['httpMetadata', 'customMetadata'],
 	});
+
+export const getBuckets = cache(async (opts: BucketOpts = {}) => {
+	const bucketsFromEnv = Object.keys(getBucketsFromEnv());
+	if (!isAuthAvailable()) return bucketsFromEnv;
+
+	const user = await getUser();
+	const buckets = await q.getVisibilityRecords({
+		kind: 'r2',
+		publicOnly: !user?.admin,
+		readOnly: opts.needsWriteAccess ? false : undefined,
+	});
+	const bucketKeys = (buckets ?? []).map((b) => b.key);
+
+	const allBuckets = user?.admin ? [...bucketKeys, ...bucketsFromEnv] : bucketKeys;
+
+	return [...new Set(allBuckets)];
+});
+
+export const validateBucketName = cache(async (bucketName?: string, opts: BucketOpts = {}) => {
+	if (!bucketName) return false;
+
+	const buckets = await getBuckets(opts);
+
+	return buckets.includes(bucketName);
+});
+
+export const getBucket = async (bucketName?: string, opts: BucketOpts = {}) => {
+	const isValidBucket = bucketName && (await validateBucketName(bucketName, opts));
+
+	if (isValidBucket) {
+		return getBucketFromEnv(bucketName);
+	}
+
+	return null;
+};
+
+type BucketOpts = {
+	needsWriteAccess?: boolean;
+};
