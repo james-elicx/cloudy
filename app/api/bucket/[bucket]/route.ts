@@ -1,5 +1,5 @@
 import { getUserSession, isGlobalReadOnly } from '@/utils/auth';
-import { getBucket } from '@/utils/cf';
+import { getBucket, getBucketItems } from '@/utils/cf';
 
 export const runtime = 'edge';
 
@@ -49,10 +49,9 @@ export const PUT = async (
 		customMetadata['uploadedByUid'] = (session?.id ?? 0).toString(); // 0 = guest
 
 		try {
-			const asFile = file as unknown as File;
-			const fileContents = await asFile.arrayBuffer();
+			const asFile = file as File;
 
-			await bucket.put(fileInfo.key, fileContents, {
+			await bucket.put(fileInfo.key, asFile.stream(), {
 				httpMetadata: {
 					contentType: asFile.type,
 				},
@@ -65,4 +64,25 @@ export const PUT = async (
 	}
 
 	return new Response(null, { status: 200 });
+};
+
+export const GET = async (
+	req: Request,
+	{ params: { bucket: bucketName } }: { params: { bucket: string } },
+) => {
+	const bucket = await getBucket(bucketName);
+	if (!bucket) {
+		return new Response('Unable to read bucket', { status: 400 });
+	}
+
+	const { searchParams } = new URL(req.url);
+	const dir = searchParams.get('dir');
+	const cursor = searchParams.get('cursor');
+
+	if (!dir) return new Response('Missing directory', { status: 400 });
+	if (!cursor) return new Response('Missing cursor', { status: 400 });
+
+	const resp = await getBucketItems(bucketName, { directory: dir, cursor });
+
+	return new Response(JSON.stringify(resp), { status: 200 });
 };
