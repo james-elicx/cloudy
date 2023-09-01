@@ -23,8 +23,7 @@ export const GET = async (
 	object.writeHttpMetadata(headers);
 	headers.set('etag', object.httpEtag);
 
-	const buffer = await object.arrayBuffer();
-	return new Response(buffer, { headers });
+	return new Response(object.body, { headers });
 };
 
 export const POST = async (

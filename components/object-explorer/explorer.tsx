@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import type { ColumnDef, SortingState } from '@tanstack/react-table';
 import {
@@ -12,22 +12,44 @@ import {
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { parseObject } from '@/utils';
 import { useOnClickOutside } from '@/utils/hooks';
+import { alphanumeric } from '@/utils/compare-alphanumeric-patched';
 import { getFileIcon, getSortIcon } from './file-icons';
 import { ObjectRow } from './object-row';
 import { useObjectExplorer } from '../providers';
 
 type Props = {
-	objects: (R2Object | string)[];
+	initialObjects: (R2Object | string)[];
+	initialCursor?: string;
 };
 
 // TODO: Settings context that persists size and order of columns
 
-export const ObjectExplorer = ({ objects }: Props): JSX.Element => {
+export const ObjectExplorer = ({ initialObjects, initialCursor }: Props): JSX.Element => {
 	const parentRef = useRef<HTMLDivElement>(null);
 
-	const { clearSelectedObjects } = useObjectExplorer();
+	const {
+		objects = initialObjects,
+		updateObjects,
+		tryFetchMoreObjects,
+		clearSelectedObjects,
+	} = useObjectExplorer();
+
+	useLayoutEffect(
+		() => updateObjects(initialObjects, { clear: true, cursor: initialCursor }),
+		[updateObjects, initialObjects, initialCursor],
+	);
 
 	useOnClickOutside(parentRef, clearSelectedObjects);
+
+	const handleScroll = useCallback(
+		(e: React.UIEvent<HTMLDivElement>) => {
+			const el = e.target as HTMLDivElement | null;
+			if (el && el.scrollHeight - el.scrollTop - el.clientHeight < 500) {
+				tryFetchMoreObjects();
+			}
+		},
+		[tryFetchMoreObjects],
+	);
 
 	const columns = useMemo<ColumnDef<R2Object | string>[]>(
 		() => [
@@ -35,8 +57,8 @@ export const ObjectExplorer = ({ objects }: Props): JSX.Element => {
 				header: 'Name',
 				minSize: 400,
 				enableSorting: true,
-				// @ts-expect-error - @tanstack/react-table doesn't know it's a custom sorting function here.
-				sortingFn: 'localeCompare',
+				// @ts-expect-error - Typescript doesn't know it's a custom sorting function.
+				sortingFn: 'alphanumeric_foldersTop',
 				accessorFn: (object) => parseObject(object).getName(),
 				cell: (cell) => {
 					const Icon = getFileIcon(parseObject(cell.row.original).getType());
@@ -99,7 +121,7 @@ export const ObjectExplorer = ({ objects }: Props): JSX.Element => {
 		state: { sorting },
 		enableSortingRemoval: false,
 		sortingFns: {
-			localeCompare: (rowA, rowB, columnId) => {
+			alphanumeric_foldersTop: (rowA, rowB, columnId) => {
 				if (
 					rowA.getValue<string>('Type') === 'folder' ||
 					rowB.getValue<string>('Type') === 'folder'
@@ -108,8 +130,7 @@ export const ObjectExplorer = ({ objects }: Props): JSX.Element => {
 					return 1;
 				}
 
-				// Files should be sorted by locale compare.
-				return rowA.getValue<string>(columnId).localeCompare(rowB.getValue<string>(columnId));
+				return alphanumeric(rowA, rowB, columnId);
 			},
 		},
 		onSortingChange: setSorting,
@@ -128,9 +149,14 @@ export const ObjectExplorer = ({ objects }: Props): JSX.Element => {
 	});
 
 	const virtualRows = rowVirtualizer.getVirtualItems();
+	const totalSize = rowVirtualizer.getTotalSize();
+
+	const paddingTop = virtualRows.length > 0 ? virtualRows?.[0]?.start || 0 : 0;
+	const paddingBottom =
+		virtualRows.length > 0 ? totalSize - (virtualRows?.[virtualRows.length - 1]?.end || 0) : 0;
 
 	return (
-		<div ref={parentRef} className="flex flex-col">
+		<div className="flex flex-col">
 			<div className="table-header-group">
 				{table.getHeaderGroups().map((headerGroup) => (
 					<div key={headerGroup.id} className="flex flex-grow flex-row py-2">
@@ -155,13 +181,19 @@ export const ObjectExplorer = ({ objects }: Props): JSX.Element => {
 				))}
 			</div>
 
-			<div className="table-row-group [&>:nth-child(odd)]:bg-secondary/40 dark:[&>:nth-child(odd)]:bg-secondary-dark/40">
+			<div
+				className="table-row-group max-h-[calc(100vh-100px)] overflow-y-auto [&>:nth-child(odd)]:bg-secondary/40 dark:[&>:nth-child(odd)]:bg-secondary-dark/40"
+				onScroll={handleScroll}
+				ref={parentRef}
+			>
+				{paddingTop > 0 && <div style={{ height: `${paddingTop}px` }} />}
 				{virtualRows.map((virtualRow) => {
 					const row = rows[virtualRow.index];
 					if (!row) return null;
 
 					return <ObjectRow key={row.id} row={row} virtualRowSize={virtualRow.size} />;
 				})}
+				{paddingBottom > 0 && <div style={{ height: `${paddingBottom}px` }} />}
 			</div>
 		</div>
 	);

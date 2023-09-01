@@ -16,7 +16,10 @@ const Page = async ({ params: { bucket, path } }: Props) => {
 			{items.delimitedPrefixes.length === 0 && items.objects.length === 0 ? (
 				<span className="flex flex-grow items-center justify-center">No items found...</span>
 			) : (
-				<ObjectExplorer objects={objects} />
+				<ObjectExplorer
+					initialObjects={objects}
+					initialCursor={items.truncated ? items.cursor : undefined}
+				/>
 			)}
 		</main>
 	);
