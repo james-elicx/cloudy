@@ -29,7 +29,7 @@
 		"@tanstack/react-form": "^0.0.12",
 		"@tanstack/react-table": "^8.9.3",
 		"@tanstack/react-virtual": "3.0.0-beta.56",
-		"cf-bindings-proxy": "^0.4.1",
+		"cf-bindings-proxy": "0.5.0",
 		"kysely": "^0.26.3",
 		"next": "13.4.19",
 		"next-auth": "0.0.0-manual.ffd05533",

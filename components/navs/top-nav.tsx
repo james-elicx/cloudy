@@ -4,7 +4,7 @@ import { useRouter, useSelectedLayoutSegments } from 'next/navigation';
 import { useMemo } from 'react';
 import Link from 'next/link';
 import { addLeadingSlash, formatFullPath, formatBucketName, toTitleCase } from '@/utils';
-import { ThemeToggle } from '../providers';
+import { ThemeToggle, UploadFilesProvider } from '../providers';
 import { ArrowLeft, ArrowRight, CaretRight } from '../icons';
 import { UploadFileButton } from '../file-upload';
 
@@ -79,7 +79,9 @@ export const TopNav = (): JSX.Element => {
 			</TopNavSection>
 
 			<TopNavSection>
-				<UploadFileButton />
+				<UploadFilesProvider>
+					<UploadFileButton />
+				</UploadFilesProvider>
 
 				<ThemeToggle />
 			</TopNavSection>

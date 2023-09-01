@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss';
+import type { PluginAPI } from 'tailwindcss/types/config';
 
 const sharedColors = {
 	transparent: 'transparent',
@@ -69,7 +70,15 @@ const config: Config = {
 			},
 		},
 	},
-	plugins: [],
+	plugins: [
+		({ addVariant }: PluginAPI) => {
+			addVariant('scrollbar', '&::-webkit-scrollbar');
+			addVariant('scrollbar-track', '&::-webkit-scrollbar-track');
+			addVariant('scrollbar-thumb', '&::-webkit-scrollbar-thumb');
+			addVariant('slider-track', '&::-webkit-slider-runnable-track');
+			addVariant('slider-thumb', '&::-webkit-slider-thumb');
+		},
+	],
 };
 
 export default config;

@@ -72,7 +72,8 @@ export const parseObject = (object: string | R2Object) => {
 		getLastModified: (): Date | null => {
 			if (isDirectory) return null;
 
-			const lastMod = Number(object.customMetadata?.['mtime']);
+			const mtime = object.customMetadata?.['mtime'];
+			const lastMod = Number(mtime?.length === 10 ? mtime.padEnd(13, '0') : mtime);
 			if (Number.isNaN(lastMod)) return null;
 
 			return new Date(lastMod);
