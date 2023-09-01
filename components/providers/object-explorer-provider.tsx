@@ -73,7 +73,9 @@ export const ObjectExplorerProvider = ({ children }: Props): JSX.Element => {
 				return resp.json<R2Objects>();
 			})
 			.then((data) => {
-				updateObjects(data.objects, { cursor: data.truncated ? data.cursor : undefined });
+				updateObjects([...data.delimitedPrefixes, ...data.objects], {
+					cursor: data.truncated ? data.cursor : undefined,
+				});
 			})
 			.catch((err) => {
 				// TODO: Change to a toast.
