@@ -21,7 +21,7 @@ const ObjectExplorerContext = createContext<IObjectExplorerContext>({
 	objects: [],
 	updateObjects: () => {},
 	tryFetchMoreObjects: () => {},
-	selectedObjects: new Set<string>(),
+	selectedObjects: new Set(),
 	addSelectedObject: () => {},
 	removeSelectedObject: () => {},
 	clearSelectedObjects: () => {},
@@ -36,7 +36,7 @@ type Props = {
 export const ObjectExplorerProvider = ({ children }: Props): JSX.Element => {
 	const { currentBucket, location } = useLocation();
 	const [objects, setObjects] = useState<ObjectItem[] | undefined>(undefined);
-	const [selectedObjects, setSelectedObjects] = useState<Set<string>>(new Set<string>());
+	const [selectedObjects, setSelectedObjects] = useState<Set<string>>(new Set());
 
 	const [, setIsFetchingMoreObjects] = useState<boolean>(false);
 	const isFetchingMoreObjectsRef = useRef<boolean>(false);
@@ -110,7 +110,7 @@ export const ObjectExplorerProvider = ({ children }: Props): JSX.Element => {
 		[selectedObjects],
 	);
 
-	const clearSelectedObjects = useCallback(() => setSelectedObjects(new Set<string>()), []);
+	const clearSelectedObjects = useCallback(() => setSelectedObjects(new Set()), []);
 
 	return (
 		<ObjectExplorerContext.Provider

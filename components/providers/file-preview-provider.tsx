@@ -15,10 +15,12 @@ import { XCircle } from '../icons';
 
 export type IFilePreviewContext = {
 	triggerFilePreview: (key: string) => void;
+	isFilePreviewActive: boolean;
 };
 
 const FilePreviewContext = createContext<IFilePreviewContext>({
 	triggerFilePreview: () => {},
+	isFilePreviewActive: false,
 });
 
 export const useFilePreview = () => useContext(FilePreviewContext);
@@ -104,7 +106,10 @@ export const FilePreviewProvider = ({ bucketName, children }: Props): JSX.Elemen
 
 	return (
 		<FilePreviewContext.Provider
-			value={useMemo(() => ({ triggerFilePreview }), [triggerFilePreview])}
+			value={useMemo(
+				() => ({ triggerFilePreview, isFilePreviewActive: !!previewKey }),
+				[triggerFilePreview, previewKey],
+			)}
 		>
 			{children}
 
