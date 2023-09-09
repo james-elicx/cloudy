@@ -1,8 +1,8 @@
 'use client';
 
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-import type { ColumnDef, SortingState } from '@tanstack/react-table';
+import type { ColumnDef, Row, SortingState } from '@tanstack/react-table';
 import {
 	flexRender,
 	getCoreRowModel,
@@ -15,7 +15,7 @@ import { useOnClickOutside } from '@/utils/hooks';
 import { alphanumeric } from '@/utils/compare-alphanumeric-patched';
 import { getFileIcon, getSortIcon } from './file-icons';
 import { ObjectRow } from './object-row';
-import { useObjectExplorer } from '../providers';
+import { useExplorerEvents, useFilePreview, useObjectExplorer } from '../providers';
 
 type Props = {
 	initialObjects: (R2Object | string)[];
@@ -27,8 +27,13 @@ type Props = {
 export const ObjectExplorer = ({ initialObjects, initialCursor }: Props): JSX.Element => {
 	const parentRef = useRef<HTMLDivElement>(null);
 
+	const { isFilePreviewActive } = useFilePreview();
+
 	const {
 		objects = initialObjects,
+		selectedObjects,
+		addSelectedObject,
+		removeSelectedObject,
 		updateObjects,
 		tryFetchMoreObjects,
 		clearSelectedObjects,
@@ -39,7 +44,8 @@ export const ObjectExplorer = ({ initialObjects, initialCursor }: Props): JSX.El
 		[updateObjects, initialObjects, initialCursor],
 	);
 
-	useOnClickOutside(parentRef, clearSelectedObjects);
+	// disable if the file is currently being previewed so that we don't lose the focus.
+	useOnClickOutside(parentRef, clearSelectedObjects, isFilePreviewActive);
 
 	const handleScroll = useCallback(
 		(e: React.UIEvent<HTMLDivElement>) => {
@@ -154,6 +160,107 @@ export const ObjectExplorer = ({ initialObjects, initialCursor }: Props): JSX.El
 	const paddingTop = virtualRows.length > 0 ? virtualRows?.[0]?.start || 0 : 0;
 	const paddingBottom =
 		virtualRows.length > 0 ? totalSize - (virtualRows?.[virtualRows.length - 1]?.end || 0) : 0;
+
+	const { handleDoubleClick } = useExplorerEvents();
+
+	const handleKeyPress = useCallback(
+		(e: KeyboardEvent) => {
+			if (isFilePreviewActive) return;
+
+			const getFirstSelected = () => selectedObjects.values().next().value as string;
+			const getLastSelected = () => [...selectedObjects.values()].reverse()[0] as string;
+
+			const getRowPath = (row: Row<R2Object | string>) =>
+				typeof row.original === 'string' ? row.original : row.original.key;
+			const getIndex = (key: string) => rows.findIndex((row) => key === getRowPath(row));
+
+			switch (e.key) {
+				case 'Enter': {
+					// trigger preview for selected objects.
+					if (selectedObjects.size === 1) {
+						const nextObj = selectedObjects.values().next().value as string;
+						handleDoubleClick({
+							isDirectory: nextObj.endsWith('/'),
+							path: nextObj,
+						});
+					} else if (selectedObjects.size > 1) {
+						// eslint-disable-next-line no-console
+						console.warn('Multiple objects selected. Preview not supported.');
+					}
+					e.stopPropagation();
+					e.preventDefault();
+					break;
+				}
+				case 'ArrowDown': {
+					if (selectedObjects.size === 0) {
+						const first = rows[0];
+						if (first) addSelectedObject(getRowPath(first), !e.shiftKey);
+					} else {
+						const firstSelected = getFirstSelected();
+						const firstSelectedIdx = getIndex(firstSelected);
+						const lastSelected = getLastSelected();
+						const lastSelectedIdx = getIndex(lastSelected);
+
+						if (firstSelectedIdx === -1 || lastSelectedIdx === -1) {
+							// do nothing
+						} else if (firstSelectedIdx > lastSelectedIdx) {
+							removeSelectedObject(lastSelected);
+						} else {
+							const nextObj = rows[lastSelectedIdx + 1];
+							if (nextObj) addSelectedObject(getRowPath(nextObj), !e.shiftKey);
+						}
+					}
+					e.stopPropagation();
+					e.preventDefault();
+					break;
+				}
+				case 'ArrowUp': {
+					if (selectedObjects.size === 0 && rows[0]) {
+						const last = rows[rows.length - 1];
+						if (last) addSelectedObject(getRowPath(last), !e.shiftKey);
+					} else {
+						const firstSelected = getFirstSelected();
+						const firstSelectedIdx = getIndex(firstSelected);
+						const lastSelected = getLastSelected();
+						const lastSelectedIdx = getIndex(lastSelected);
+
+						if (firstSelectedIdx === -1 || lastSelectedIdx === -1) {
+							// do nothing
+						} else if (firstSelectedIdx < lastSelectedIdx) {
+							removeSelectedObject(lastSelected);
+						} else {
+							const nextObj = rows[lastSelectedIdx - 1];
+							if (nextObj) addSelectedObject(getRowPath(nextObj), !e.shiftKey);
+						}
+					}
+					e.stopPropagation();
+					e.preventDefault();
+					break;
+				}
+				case 'Escape': {
+					clearSelectedObjects();
+					break;
+				}
+				default:
+					break;
+			}
+		},
+		[
+			addSelectedObject,
+			clearSelectedObjects,
+			handleDoubleClick,
+			isFilePreviewActive,
+			removeSelectedObject,
+			rows,
+			selectedObjects,
+		],
+	);
+
+	useEffect(() => {
+		document.addEventListener('keydown', handleKeyPress);
+
+		return () => document.removeEventListener('keydown', handleKeyPress);
+	}, [handleKeyPress]);
 
 	return (
 		<div className="flex flex-col">

@@ -1,11 +1,10 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { twMerge } from 'tailwind-merge';
 import { parseObject } from '@/utils';
 import type { Row } from '@tanstack/react-table';
 import { flexRender } from '@tanstack/react-table';
-import { useObjectExplorer, useFilePreview, useLocation } from '../providers';
+import { useObjectExplorer, useExplorerEvents } from '../providers';
 
 type Props = {
 	row: Row<R2Object | string>;
@@ -13,39 +12,11 @@ type Props = {
 };
 
 export const ObjectRow = ({ row, virtualRowSize }: Props): JSX.Element => {
-	const router = useRouter();
-	const { currentBucket } = useLocation();
-
-	const { selectedObjects, addSelectedObject } = useObjectExplorer();
-	const { triggerFilePreview } = useFilePreview();
+	const { selectedObjects } = useObjectExplorer();
+	const { handleMouseDown, handleDoubleClick, handleContextMenu } = useExplorerEvents();
 
 	const object = parseObject(row.original);
 	const isSelected = selectedObjects.has(object.path);
-
-	const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-		// We only trigger selection on left click.
-		// `onMouseDown` is used instead of `onClick` so we can mark an object as selected on focusing instead of after the click completes.
-		if (e.button !== 0) return;
-
-		if (e.ctrlKey) {
-			addSelectedObject(object.path);
-		} else {
-			addSelectedObject(object.path, true);
-		}
-	};
-
-	const handleDoubleClick = () => {
-		if (object.isDirectory) {
-			router.push(`/bucket/${currentBucket?.raw}/${object.path}`);
-		} else {
-			triggerFilePreview(object.path);
-		}
-	};
-
-	const handleContextMenu = () => {
-		addSelectedObject(object.path, true);
-		// TODO: Render a context menu.
-	};
 
 	return (
 		<>
@@ -59,9 +30,9 @@ export const ObjectRow = ({ row, virtualRowSize }: Props): JSX.Element => {
 						'border-accent !bg-secondary dark:border-accent-dark dark:!bg-secondary-dark',
 				)}
 				style={{ height: virtualRowSize }}
-				onMouseDown={handleMouseDown}
-				onDoubleClick={handleDoubleClick}
-				onContextMenu={handleContextMenu}
+				onMouseDown={(e) => handleMouseDown(e, object)}
+				onDoubleClick={() => handleDoubleClick(object)}
+				onContextMenu={() => handleContextMenu(object)}
 			>
 				{row.getVisibleCells().map((cell) => (
 					<div key={cell.id} className="table-cell" style={{ width: cell.column.getSize() }}>

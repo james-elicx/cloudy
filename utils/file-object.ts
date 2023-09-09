@@ -80,3 +80,5 @@ export const parseObject = (object: string | R2Object) => {
 		},
 	};
 };
+
+export type FileObject = ReturnType<typeof parseObject>;
