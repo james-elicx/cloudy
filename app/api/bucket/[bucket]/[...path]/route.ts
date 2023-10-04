@@ -1,4 +1,5 @@
 import { getBucket } from '@/utils/cf';
+import { getSettingsRecord } from '@/utils/db/queries';
 
 export const runtime = 'edge';
 
@@ -19,7 +20,14 @@ export const GET = async (
 		return new Response('Not found', { status: 404 });
 	}
 
+	const cacheControlSetting = await getSettingsRecord('cache-header');
+
 	const headers = new Headers();
+
+	if (cacheControlSetting) {
+		headers.set('cache-control', cacheControlSetting.value);
+	}
+
 	object.writeHttpMetadata(headers);
 	headers.set('etag', object.httpEtag);
 

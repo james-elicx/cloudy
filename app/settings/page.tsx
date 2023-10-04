@@ -1,51 +1,19 @@
-import { getUser } from '@/utils/auth';
-import { q } from '@/utils/db';
-import { notFound } from 'next/navigation';
-import { getBucketsFromEnv } from '@/utils/cf';
-import { updateVisibility } from '@/utils/actions/access-control';
-import type { Metadata } from 'next';
-import type { VisibilityTableRecord } from './visibility-table';
-import { VisibilityTable } from './visibility-table';
-
-export const metadata: Metadata = {
-	title: 'Settings',
-};
+import { Header } from '@/components';
+import { getSettingsRecords } from '@/utils/db/queries';
+import { updateCacheHeader } from '@/utils/actions/settings';
+import { SettingsGrid } from './settings-grid';
 
 const Page = async (): Promise<JSX.Element> => {
-	const user = await getUser();
-	if (!user?.admin) return notFound();
-
-	const records = await q.getVisibilityRecords();
-	const buckets = getBucketsFromEnv();
-
-	const allRecords = [
-		...(records ?? []),
-		...Object.keys(buckets)
-			.filter((b) => !records?.find((r) => r.kind === 'r2' && r.key === b))
-			.map(
-				(b) =>
-					({
-						kind: 'r2',
-						key: b,
-						glob: '*',
-						public: false,
-						readOnly: true,
-					}) satisfies VisibilityTableRecord,
-			),
-	];
+	const settings = await getSettingsRecords('general');
 
 	return (
-		<div className="m-4 flex flex-col gap-2">
-			<div className="flex flex-col">
-				<span className="text-lg font-bold">Visibility Settings</span>
-				<p className="text-sm">
-					Control the visibility of your bindings, whether they are publically accessible, and the
-					permissions allowed when public.
-				</p>
-			</div>
+		<div className="flex flex-col gap-2">
+			<Header
+				title="General Settings"
+				desc="Specify general configuation options for your Cloudy instance."
+			/>
 
-			<VisibilityTable records={allRecords} updateVisibilityAction={updateVisibility} />
-			{allRecords.length === 0 && <span>No entries found</span>}
+			<SettingsGrid settings={settings} updateCacheHeaderAction={updateCacheHeader} />
 		</div>
 	);
 };

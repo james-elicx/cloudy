@@ -186,3 +186,50 @@ export const updateVisibilityRecord = async (
 		.returning(['id'])
 		.executeTakeFirst();
 };
+
+export const getSettingsRecord = async (key: string) => {
+	if (!db) return undefined;
+
+	return db
+		.selectFrom('Settings')
+		.select(['key', 'value', 'updatedAt', 'updatedBy'])
+		.where('key', '=', key)
+		.executeTakeFirst();
+};
+
+type SettingsType = 'general';
+
+export const getSettingsRecords = async (type: SettingsType) => {
+	if (!db) return undefined;
+
+	const records = await db
+		.selectFrom('Settings')
+		.select(['key', 'value', 'updatedAt', 'updatedBy'])
+		.where('type', '=', type)
+		.execute();
+
+	return records.reduce(
+		(acc, record) => ({ ...acc, [record.key]: record }),
+		{} as Record<string, NonNullable<typeof records>[number]>,
+	);
+};
+
+export type SettingsRecord = NonNullable<Awaited<ReturnType<typeof getSettingsRecord>>>;
+
+export const updateSettingsRecord = async (
+	type: SettingsType,
+	key: string,
+	value: string,
+	updatedBy: number,
+) => {
+	if (!db) return undefined;
+
+	return db
+		.insertInto('Settings')
+		.values({ type, key, value, updatedAt: new Date(), updatedBy })
+		.onConflict((c) =>
+			c.doUpdateSet({ value, updatedAt: new Date(), updatedBy }).where('key', '=', key),
+		)
+		.returning(['key', 'value', 'updatedAt', 'updatedBy'])
+		.executeTakeFirst();
+};
