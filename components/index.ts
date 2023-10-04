@@ -4,3 +4,4 @@ export * from './typography';
 export * from './navs';
 export * from './file-upload';
 export * from './object-explorer';
+export * from './tab-group';

@@ -1,6 +1,6 @@
 import { validateBucketName } from '@/utils/cf';
 import { formatBucketName, formatFullPath } from '@/utils';
-import { ObjectExplorerProvider, FilePreviewProvider, ExplorerEventsProvider } from '@/components';
+import { ObjectExplorerProvider, ExplorerEventsProvider, ObjectPreview } from '@/components';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Ctx } from './ctx';
@@ -21,9 +21,11 @@ const Layout = async ({ params: { bucket, path }, children }: Props): Promise<JS
 			<Ctx bucketName={bucket} path={fullPath} />
 
 			<ObjectExplorerProvider>
-				<FilePreviewProvider bucketName={bucket}>
-					<ExplorerEventsProvider>{children}</ExplorerEventsProvider>
-				</FilePreviewProvider>
+				<ExplorerEventsProvider>
+					{children}
+
+					<ObjectPreview />
+				</ExplorerEventsProvider>
 			</ObjectExplorerProvider>
 		</>
 	);

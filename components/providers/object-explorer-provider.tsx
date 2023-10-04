@@ -1,30 +1,35 @@
 'use client';
 
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { rawToObjs, type FileObject } from '@/utils';
 import { useLocation } from './location-provider';
 
 type UpdateObjectsOpts = { clear?: boolean; cursor?: string };
 
-type ObjectItem = R2Object | string;
-
 export type IObjectExplorerContext = {
-	objects: ObjectItem[] | undefined;
-	updateObjects: (newObjects: ObjectItem[], opts?: UpdateObjectsOpts) => void;
+	objects: FileObject[] | undefined;
+	updateObjects: (newObjects: FileObject[], opts?: UpdateObjectsOpts) => void;
 	tryFetchMoreObjects: () => void;
-	selectedObjects: Set<string>;
-	addSelectedObject: (key: string, shouldClear?: boolean) => void;
+	selectedObjects: Map<string, { idx: number }>;
+	addSelectedObject: (key: string, objInfo: { idx: number }, shouldClear?: boolean) => void;
 	removeSelectedObject: (key: string) => void;
 	clearSelectedObjects: () => void;
+	isPreviewActive: boolean;
+	triggerPreview: () => void;
+	dismissPreview: () => void;
 };
 
 const ObjectExplorerContext = createContext<IObjectExplorerContext>({
 	objects: [],
 	updateObjects: () => {},
 	tryFetchMoreObjects: () => {},
-	selectedObjects: new Set(),
+	selectedObjects: new Map(),
 	addSelectedObject: () => {},
 	removeSelectedObject: () => {},
 	clearSelectedObjects: () => {},
+	isPreviewActive: false,
+	triggerPreview: () => {},
+	dismissPreview: () => {},
 });
 
 export const useObjectExplorer = () => useContext(ObjectExplorerContext);
@@ -35,14 +40,14 @@ type Props = {
 
 export const ObjectExplorerProvider = ({ children }: Props): JSX.Element => {
 	const { currentBucket, location } = useLocation();
-	const [objects, setObjects] = useState<ObjectItem[] | undefined>(undefined);
-	const [selectedObjects, setSelectedObjects] = useState<Set<string>>(new Set());
+	const [objects, setObjects] = useState<FileObject[] | undefined>(undefined);
+	const [selectedObjects, setSelectedObjects] = useState<Map<string, { idx: number }>>(new Map());
 
 	const [, setIsFetchingMoreObjects] = useState<boolean>(false);
 	const isFetchingMoreObjectsRef = useRef<boolean>(false);
 	const fetchObjectsCursor = useRef<string | null>();
 
-	const updateObjects = useCallback((newObjects: ObjectItem[], opts: UpdateObjectsOpts = {}) => {
+	const updateObjects = useCallback((newObjects: FileObject[], opts: UpdateObjectsOpts = {}) => {
 		if (opts.clear) {
 			fetchObjectsCursor.current = null;
 			setObjects(newObjects);
@@ -73,7 +78,7 @@ export const ObjectExplorerProvider = ({ children }: Props): JSX.Element => {
 				return resp.json<R2Objects>();
 			})
 			.then((data) => {
-				updateObjects([...data.delimitedPrefixes, ...data.objects], {
+				updateObjects(rawToObjs(data.delimitedPrefixes).concat(rawToObjs(data.objects)), {
 					cursor: data.truncated ? data.cursor : undefined,
 				});
 			})
@@ -91,12 +96,14 @@ export const ObjectExplorerProvider = ({ children }: Props): JSX.Element => {
 	}, [currentBucket, location, updateObjects]);
 
 	const addSelectedObject = useCallback(
-		(key: string, shouldClear?: boolean) => {
+		(key: string, objInfo: { idx: number }, shouldClear?: boolean) => {
 			if (shouldClear) {
-				setSelectedObjects(new Set([key]));
-			} else {
-				selectedObjects.add(key);
-				setSelectedObjects(new Set(selectedObjects));
+				if (selectedObjects.size > 1 || !selectedObjects.has(key)) {
+					setSelectedObjects(new Map([[key, objInfo]]));
+				}
+			} else if (!selectedObjects.has(key)) {
+				selectedObjects.set(key, objInfo);
+				setSelectedObjects(new Map(selectedObjects));
 			}
 		},
 		[selectedObjects],
@@ -105,12 +112,16 @@ export const ObjectExplorerProvider = ({ children }: Props): JSX.Element => {
 	const removeSelectedObject = useCallback(
 		(key: string) => {
 			selectedObjects.delete(key);
-			setSelectedObjects(new Set(selectedObjects));
+			setSelectedObjects(new Map(selectedObjects));
 		},
 		[selectedObjects],
 	);
 
-	const clearSelectedObjects = useCallback(() => setSelectedObjects(new Set()), []);
+	const clearSelectedObjects = useCallback(() => setSelectedObjects(new Map()), []);
+
+	const [isPreviewActive, setIsPreviewActive] = useState<boolean>(false);
+	const triggerPreview = useCallback(() => setIsPreviewActive(true), []);
+	const dismissPreview = useCallback(() => setIsPreviewActive(false), []);
 
 	return (
 		<ObjectExplorerContext.Provider
@@ -123,6 +134,9 @@ export const ObjectExplorerProvider = ({ children }: Props): JSX.Element => {
 					addSelectedObject,
 					removeSelectedObject,
 					clearSelectedObjects,
+					isPreviewActive,
+					triggerPreview,
+					dismissPreview,
 				}),
 				[
 					objects,
@@ -132,6 +146,9 @@ export const ObjectExplorerProvider = ({ children }: Props): JSX.Element => {
 					removeSelectedObject,
 					selectedObjects,
 					clearSelectedObjects,
+					isPreviewActive,
+					triggerPreview,
+					dismissPreview,
 				],
 			)}
 		>

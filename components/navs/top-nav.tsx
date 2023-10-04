@@ -7,6 +7,7 @@ import { addLeadingSlash, formatFullPath, formatBucketName, toTitleCase } from '
 import { ThemeToggle, UploadFilesProvider } from '../providers';
 import { ArrowLeft, ArrowRight, CaretRight } from '../icons';
 import { UploadFileButton } from '../file-upload';
+import { TogglePreviewPaneButton } from '../object-explorer';
 
 const TopNavSection = ({ children }: { children: React.ReactNode }): JSX.Element => (
 	<div className="flex flex-row items-center gap-4">{children}</div>
@@ -79,6 +80,8 @@ export const TopNav = (): JSX.Element => {
 			</TopNavSection>
 
 			<TopNavSection>
+				<TogglePreviewPaneButton />
+
 				<UploadFilesProvider>
 					<UploadFileButton />
 				</UploadFilesProvider>

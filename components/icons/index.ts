@@ -26,4 +26,6 @@ export {
 	GearSix,
 	DotsThreeOutlineVertical,
 	CaretCircleDown,
+	Door,
+	DoorOpen,
 } from '@phosphor-icons/react';

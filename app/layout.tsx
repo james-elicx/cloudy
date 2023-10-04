@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
-import { LocationProvider, ThemeProvider, SideNav, TopNav } from '@/components';
+import { LocationProvider, ThemeProvider, SideNav, TopNav, SettingsProvider } from '@/components';
 import './globals.css';
 import { getBuckets } from '@/utils/cf';
 import { AuthProvider } from '@/components/providers/auth-provider';
@@ -51,17 +51,19 @@ const Layout = async ({ children }: Props) => {
 			<body className={TASAOrbiterText.variable}>
 				<AuthProvider user={user}>
 					<ThemeProvider attribute="data-theme" defaultTheme="light">
-						<LocationProvider buckets={buckets}>
-							<div className="flex flex-grow flex-row bg-background dark:bg-background-dark">
-								<SideNav />
+						<SettingsProvider>
+							<LocationProvider buckets={buckets}>
+								<div className="flex flex-grow flex-row bg-background dark:bg-background-dark">
+									<SideNav />
 
-								<div className="flex h-screen flex-grow flex-col overflow-y-auto">
-									<TopNav />
+									<div className="flex h-screen flex-grow flex-col overflow-y-auto">
+										<TopNav />
 
-									{children}
+										{children}
+									</div>
 								</div>
-							</div>
-						</LocationProvider>
+							</LocationProvider>
+						</SettingsProvider>
 					</ThemeProvider>
 				</AuthProvider>
 			</body>
