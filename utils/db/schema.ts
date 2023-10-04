@@ -62,6 +62,13 @@ export type Database = {
 		public: number;
 		readOnly: number;
 	};
+	Settings: {
+		type: string;
+		key: string;
+		value: string;
+		updatedAt: Generated<Date>;
+		updatedBy: UserId; // fkey
+	};
 };
 
 const getDatabaseFromEnv = () => {
