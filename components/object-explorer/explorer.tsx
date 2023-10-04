@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-import type { ColumnDef, Row, SortingState } from '@tanstack/react-table';
+import type { ColumnDef, SortingState } from '@tanstack/react-table';
 import {
 	flexRender,
 	getCoreRowModel,
@@ -10,15 +10,15 @@ import {
 	useReactTable,
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { parseObject } from '@/utils';
+import { parseObject, type FileObject } from '@/utils';
 import { useOnClickOutside } from '@/utils/hooks';
 import { alphanumeric } from '@/utils/compare-alphanumeric-patched';
 import { getFileIcon, getSortIcon } from './file-icons';
 import { ObjectRow } from './object-row';
-import { useExplorerEvents, useFilePreview, useObjectExplorer } from '../providers';
+import { useExplorerEvents, useObjectExplorer } from '../providers';
 
 type Props = {
-	initialObjects: (R2Object | string)[];
+	initialObjects: (string | R2Object)[];
 	initialCursor?: string;
 };
 
@@ -27,25 +27,38 @@ type Props = {
 export const ObjectExplorer = ({ initialObjects, initialCursor }: Props): JSX.Element => {
 	const parentRef = useRef<HTMLDivElement>(null);
 
-	const { isFilePreviewActive } = useFilePreview();
+	const parsedInitialObjects = useMemo(
+		() => initialObjects.map((o) => parseObject(o)),
+		[initialObjects],
+	);
 
 	const {
-		objects = initialObjects,
+		objects = parsedInitialObjects,
 		selectedObjects,
 		addSelectedObject,
 		removeSelectedObject,
 		updateObjects,
 		tryFetchMoreObjects,
 		clearSelectedObjects,
+		isPreviewActive,
 	} = useObjectExplorer();
 
 	useLayoutEffect(
-		() => updateObjects(initialObjects, { clear: true, cursor: initialCursor }),
-		[updateObjects, initialObjects, initialCursor],
+		() => updateObjects(parsedInitialObjects, { clear: true, cursor: initialCursor }),
+		[updateObjects, parsedInitialObjects, initialCursor],
 	);
 
 	// disable if the file is currently being previewed so that we don't lose the focus.
-	useOnClickOutside(parentRef, clearSelectedObjects, isFilePreviewActive);
+	useOnClickOutside(
+		parentRef,
+		(e) => {
+			// check if target element is child of preview pane and don't clear selection if it is.
+			if (!document.getElementById('preview-pane')?.contains(e.target as Node)) {
+				clearSelectedObjects();
+			}
+		},
+		isPreviewActive,
+	);
 
 	const handleScroll = useCallback(
 		(e: React.UIEvent<HTMLDivElement>) => {
@@ -57,7 +70,7 @@ export const ObjectExplorer = ({ initialObjects, initialCursor }: Props): JSX.El
 		[tryFetchMoreObjects],
 	);
 
-	const columns = useMemo<ColumnDef<R2Object | string>[]>(
+	const columns = useMemo<ColumnDef<FileObject>[]>(
 		() => [
 			{
 				header: 'Name',
@@ -65,9 +78,9 @@ export const ObjectExplorer = ({ initialObjects, initialCursor }: Props): JSX.El
 				enableSorting: true,
 				// @ts-expect-error - Typescript doesn't know it's a custom sorting function.
 				sortingFn: 'alphanumeric_foldersTop',
-				accessorFn: (object) => parseObject(object).getName(),
+				accessorFn: (object) => object.getName(),
 				cell: (cell) => {
-					const Icon = getFileIcon(parseObject(cell.row.original).getType());
+					const Icon = getFileIcon(cell.row.original.getType());
 					const value = cell.getValue<string>();
 
 					return (
@@ -86,7 +99,7 @@ export const ObjectExplorer = ({ initialObjects, initialCursor }: Props): JSX.El
 				header: 'Type',
 				enableSorting: true,
 				sortingFn: 'text',
-				accessorFn: (object) => parseObject(object).getType(),
+				accessorFn: (object) => object.getType(),
 				cell: (cell) => (
 					<span className="rounded-md bg-secondary-dark/10 px-1 py-0.5 text-xs text-secondary/80 dark:bg-secondary/10 dark:text-secondary-dark/80">
 						{cell.getValue<string>()}
@@ -97,14 +110,14 @@ export const ObjectExplorer = ({ initialObjects, initialCursor }: Props): JSX.El
 				header: 'Size',
 				enableSorting: true,
 				sortingFn: 'basic',
-				accessorFn: (object) => (parseObject(object).isDirectory ? 0 : (object as R2Object).size),
-				cell: (cell) => <span>{parseObject(cell.row.original).getSize()}</span>,
+				accessorFn: (object) => object.getSize(),
+				cell: (cell) => <span>{cell.getValue<string>()}</span>,
 			},
 			{
 				header: 'Last Modified',
 				enableSorting: true,
 				sortingFn: 'datetime',
-				accessorFn: (object) => parseObject(object).getLastModified(),
+				accessorFn: (object) => object.getLastModified(),
 				cell: (cell) => (
 					<span suppressHydrationWarning>
 						{cell.getValue<Date | null>()?.toLocaleDateString() ?? ''}
@@ -163,78 +176,60 @@ export const ObjectExplorer = ({ initialObjects, initialCursor }: Props): JSX.El
 
 	const { handleDoubleClick } = useExplorerEvents();
 
+	const selectNextObject = useCallback(
+		(opts: { up?: boolean; down?: boolean; shiftKey?: boolean }) => {
+			const selectedObjs = [...selectedObjects.entries()];
+
+			const missingObjVal = ['', { idx: -1 }] as const;
+			const [firstObjKey, { idx: firstObjIdx }] = selectedObjs[0] ?? missingObjVal;
+			const [lastObjKey, { idx: lastObjIdx }] =
+				selectedObjs[selectedObjs.length - 1] ?? missingObjVal;
+
+			if (firstObjIdx === -1 || lastObjIdx === -1) {
+				// do nothing
+			} else if (opts.down ? firstObjIdx > lastObjIdx : firstObjIdx < lastObjIdx) {
+				removeSelectedObject(opts.down ? firstObjKey : lastObjKey);
+			} else {
+				const nextIdx = opts.down ? lastObjIdx + 1 : lastObjIdx - 1;
+				const nextObj = rows[nextIdx];
+				if (nextObj) addSelectedObject(nextObj.original.path, { idx: nextIdx }, !opts.shiftKey);
+			}
+		},
+		[selectedObjects, removeSelectedObject, rows, addSelectedObject],
+	);
+
 	const handleKeyPress = useCallback(
 		(e: KeyboardEvent) => {
-			if (isFilePreviewActive) return;
-
-			const getFirstSelected = () => selectedObjects.values().next().value as string;
-			const getLastSelected = () => [...selectedObjects.values()].reverse()[0] as string;
-
-			const getRowPath = (row: Row<R2Object | string>) =>
-				typeof row.original === 'string' ? row.original : row.original.key;
-			const getIndex = (key: string) => rows.findIndex((row) => key === getRowPath(row));
+			if (isPreviewActive) return;
 
 			switch (e.key) {
 				case 'Enter': {
 					// trigger preview for selected objects.
 					if (selectedObjects.size === 1) {
 						const nextObj = selectedObjects.values().next().value as string;
-						handleDoubleClick({
-							isDirectory: nextObj.endsWith('/'),
-							path: nextObj,
-						});
+						handleDoubleClick({ isDirectory: nextObj.endsWith('/'), path: nextObj });
 					} else if (selectedObjects.size > 1) {
 						// eslint-disable-next-line no-console
 						console.warn('Multiple objects selected. Preview not supported.');
 					}
-					e.stopPropagation();
-					e.preventDefault();
 					break;
 				}
 				case 'ArrowDown': {
 					if (selectedObjects.size === 0) {
 						const first = rows[0];
-						if (first) addSelectedObject(getRowPath(first), !e.shiftKey);
+						if (first) addSelectedObject(first.original.path, { idx: 0 }, !e.shiftKey);
 					} else {
-						const firstSelected = getFirstSelected();
-						const firstSelectedIdx = getIndex(firstSelected);
-						const lastSelected = getLastSelected();
-						const lastSelectedIdx = getIndex(lastSelected);
-
-						if (firstSelectedIdx === -1 || lastSelectedIdx === -1) {
-							// do nothing
-						} else if (firstSelectedIdx > lastSelectedIdx) {
-							removeSelectedObject(lastSelected);
-						} else {
-							const nextObj = rows[lastSelectedIdx + 1];
-							if (nextObj) addSelectedObject(getRowPath(nextObj), !e.shiftKey);
-						}
+						selectNextObject({ down: true, shiftKey: e.shiftKey });
 					}
-					e.stopPropagation();
-					e.preventDefault();
 					break;
 				}
 				case 'ArrowUp': {
 					if (selectedObjects.size === 0 && rows[0]) {
 						const last = rows[rows.length - 1];
-						if (last) addSelectedObject(getRowPath(last), !e.shiftKey);
+						if (last) addSelectedObject(last.original.path, { idx: rows.length - 1 }, !e.shiftKey);
 					} else {
-						const firstSelected = getFirstSelected();
-						const firstSelectedIdx = getIndex(firstSelected);
-						const lastSelected = getLastSelected();
-						const lastSelectedIdx = getIndex(lastSelected);
-
-						if (firstSelectedIdx === -1 || lastSelectedIdx === -1) {
-							// do nothing
-						} else if (firstSelectedIdx < lastSelectedIdx) {
-							removeSelectedObject(lastSelected);
-						} else {
-							const nextObj = rows[lastSelectedIdx - 1];
-							if (nextObj) addSelectedObject(getRowPath(nextObj), !e.shiftKey);
-						}
+						selectNextObject({ up: true, shiftKey: e.shiftKey });
 					}
-					e.stopPropagation();
-					e.preventDefault();
 					break;
 				}
 				case 'Escape': {
@@ -242,18 +237,51 @@ export const ObjectExplorer = ({ initialObjects, initialCursor }: Props): JSX.El
 					break;
 				}
 				default:
-					break;
+					return;
 			}
+
+			e.stopPropagation();
+			e.preventDefault();
 		},
 		[
 			addSelectedObject,
 			clearSelectedObjects,
 			handleDoubleClick,
-			isFilePreviewActive,
-			removeSelectedObject,
+			isPreviewActive,
 			rows,
+			selectNextObject,
 			selectedObjects,
 		],
+	);
+
+	const handleMouseDown = useCallback(
+		(e: React.MouseEvent<HTMLElement>, object: FileObject, objInfo: { idx: number }) => {
+			// We only trigger selection on left click.
+			// `onMouseDown` is used instead of `onClick` so we can mark an object as selected on focusing instead of after the click completes.
+			if (e.button !== 0) return;
+			// TODO: Trigger context menu through this handler instead.
+
+			if (e.ctrlKey || e.metaKey) {
+				addSelectedObject(object.path, objInfo);
+			} else if (e.shiftKey) {
+				const [, { idx: lastSelectedIdx }] = [...selectedObjects.entries()].reverse()[0] as [
+					string,
+					{ idx: number },
+				];
+
+				if (lastSelectedIdx === -1) {
+					addSelectedObject(object.path, objInfo);
+				} else {
+					for (let i = lastSelectedIdx; i <= objInfo.idx; i++) {
+						const nextObj = rows[i];
+						if (nextObj) addSelectedObject(nextObj.original.path, { idx: i });
+					}
+				}
+			} else {
+				addSelectedObject(object.path, objInfo, true);
+			}
+		},
+		[addSelectedObject, rows, selectedObjects],
 	);
 
 	useEffect(() => {
@@ -263,7 +291,7 @@ export const ObjectExplorer = ({ initialObjects, initialCursor }: Props): JSX.El
 	}, [handleKeyPress]);
 
 	return (
-		<div className="flex flex-col">
+		<div className="table">
 			<div className="table-header-group">
 				{table.getHeaderGroups().map((headerGroup) => (
 					<div key={headerGroup.id} className="flex flex-grow flex-row py-2">
@@ -298,7 +326,14 @@ export const ObjectExplorer = ({ initialObjects, initialCursor }: Props): JSX.El
 					const row = rows[virtualRow.index];
 					if (!row) return null;
 
-					return <ObjectRow key={row.id} row={row} virtualRowSize={virtualRow.size} />;
+					return (
+						<ObjectRow
+							key={row.id}
+							row={row}
+							virtualRowSize={virtualRow.size}
+							handleClick={(e, obj) => handleMouseDown(e, obj, { idx: virtualRow.index })}
+						/>
+					);
 				})}
 				{paddingBottom > 0 && <div style={{ height: `${paddingBottom}px` }} />}
 			</div>

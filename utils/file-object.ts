@@ -66,6 +66,7 @@ export const parseObject = (object: string | R2Object) => {
 		isDirectory,
 		path,
 		getName: (): string => path.replace(/\/$/, '').replace(/.*\//, ''),
+		rawType: isDirectory ? 'folder' : object.httpMetadata?.contentType,
 		getType: (): FileType =>
 			isDirectory ? 'folder' : parseFileType(object.key, object.httpMetadata?.contentType),
 		getSize: (): string => (isDirectory ? '' : bytesToString(object.size)),
@@ -80,5 +81,7 @@ export const parseObject = (object: string | R2Object) => {
 		},
 	};
 };
+
+export const rawToObjs = (objs: (R2Object | string)[]) => objs.map((o) => parseObject(o));
 
 export type FileObject = ReturnType<typeof parseObject>;

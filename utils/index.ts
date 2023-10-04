@@ -7,5 +7,5 @@ export {
 	formatBucketName,
 	toTitleCase,
 } from './paths';
-export type { FileType } from './file-object';
-export { parseObject } from './file-object';
+export type { FileType, FileObject } from './file-object';
+export { parseObject, rawToObjs } from './file-object';
