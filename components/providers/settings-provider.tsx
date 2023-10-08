@@ -6,11 +6,15 @@ import { createContext, useCallback, useContext, useMemo } from 'react';
 export type ISettingsContext = {
 	isPreviewPaneActive: boolean;
 	togglePreviewPane: () => void;
+	isGridView: boolean;
+	toggleGridView: () => void;
 };
 
 const SettingsContext = createContext<ISettingsContext>({
 	isPreviewPaneActive: true,
 	togglePreviewPane: () => {},
+	isGridView: false,
+	toggleGridView: () => {},
 });
 
 export const useSettings = () => useContext(SettingsContext);
@@ -21,22 +25,36 @@ type Props = {
 
 type Settings = {
 	isPreviewPaneActive: boolean;
+	isGridView: boolean;
 };
 
-export const SettingsProvider = ({ children }: Props): JSX.Element => {
-	const [{ isPreviewPaneActive }, setSettings] = useLocalStorage<Settings>('cloudy-settings', {
-		isPreviewPaneActive: true,
-	});
+// TODO: Store authed user settings in the database?
 
-	const togglePreviewPane = useCallback(() => {
-		setSettings((prev) => ({ ...prev, isPreviewPaneActive: !prev.isPreviewPaneActive }));
-	}, [setSettings]);
+export const SettingsProvider = ({ children }: Props): JSX.Element => {
+	const [{ isPreviewPaneActive, isGridView }, setSettings] = useLocalStorage<Settings>(
+		'cloudy-settings',
+		{ isPreviewPaneActive: true, isGridView: false },
+	);
+
+	const toggleSetting = useCallback(
+		(key: keyof Settings) => {
+			setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
+		},
+		[setSettings],
+	);
+
+	const togglePreviewPane = useCallback(
+		() => toggleSetting('isPreviewPaneActive'),
+		[toggleSetting],
+	);
+
+	const toggleGridView = useCallback(() => toggleSetting('isGridView'), [toggleSetting]);
 
 	return (
 		<SettingsContext.Provider
 			value={useMemo(
-				() => ({ isPreviewPaneActive, togglePreviewPane }),
-				[isPreviewPaneActive, togglePreviewPane],
+				() => ({ isPreviewPaneActive, togglePreviewPane, isGridView, toggleGridView }),
+				[isPreviewPaneActive, togglePreviewPane, isGridView, toggleGridView],
 			)}
 		>
 			{children}

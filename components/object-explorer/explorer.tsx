@@ -1,6 +1,14 @@
 'use client';
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import {
+	Fragment,
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import { twMerge } from 'tailwind-merge';
 import type { ColumnDef, SortingState } from '@tanstack/react-table';
 import {
@@ -11,20 +19,24 @@ import {
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { parseObject, type FileObject } from '@/utils';
-import { useOnClickOutside } from '@/utils/hooks';
+import { useOnClickOutside, useResizeObserver } from '@/utils/hooks';
 import { alphanumeric } from '@/utils/compare-alphanumeric-patched';
 import { getFileIcon, getSortIcon } from './file-icons';
 import { ObjectRow } from './object-row';
-import { useExplorerEvents, useObjectExplorer } from '../providers';
+import { useExplorerEvents, useObjectExplorer, useSettings } from '../providers';
+import { ObjectGridItem } from './object-grid-item';
+
+// TODO: Settings context that persists size and order of columns
 
 type Props = {
 	initialObjects: (string | R2Object)[];
 	initialCursor?: string;
 };
 
-// TODO: Settings context that persists size and order of columns
-
 export const ObjectExplorer = ({ initialObjects, initialCursor }: Props): JSX.Element => {
+	const { isGridView } = useSettings();
+	const grid = { width: 140, height: 170, padding: 16 };
+
 	const parentRef = useRef<HTMLDivElement>(null);
 
 	const parsedInitialObjects = useMemo(
@@ -160,19 +172,42 @@ export const ObjectExplorer = ({ initialObjects, initialCursor }: Props): JSX.El
 
 	const { rows } = table.getRowModel();
 
+	const [gridColumns, setGridColumns] = useState(
+		parentRef.current ? Math.floor(parentRef.current.clientWidth / grid.width) : 5,
+	);
+	useResizeObserver(parentRef, ({ width }) => {
+		setGridColumns(Math.floor(width / grid.width));
+	});
+
 	const rowVirtualizer = useVirtualizer({
 		count: rows.length, // Should this track some sort of count from R2?
-		estimateSize: () => 40,
+		estimateSize: () => (isGridView ? grid.height : 40),
 		getScrollElement: useCallback(() => parentRef.current, []),
 		overscan: 25,
 	});
 
+	const columnVirtualizer = useVirtualizer({
+		horizontal: true,
+		count: gridColumns,
+		getScrollElement: useCallback(() => parentRef.current, []),
+		estimateSize: () => (isGridView ? grid.width : 40),
+	});
+
+	useEffect(() => {
+		rowVirtualizer.measure();
+		columnVirtualizer.measure();
+	}, [columnVirtualizer, isGridView, rowVirtualizer]);
+
 	const virtualRows = rowVirtualizer.getVirtualItems();
+	const virtualColumns = columnVirtualizer.getVirtualItems();
 	const totalSize = rowVirtualizer.getTotalSize();
 
 	const paddingTop = virtualRows.length > 0 ? virtualRows?.[0]?.start || 0 : 0;
 	const paddingBottom =
-		virtualRows.length > 0 ? totalSize - (virtualRows?.[virtualRows.length - 1]?.end || 0) : 0;
+		virtualRows.length > 0
+			? (totalSize - (virtualRows?.[virtualRows.length - 1]?.end || 0)) /
+			  (isGridView ? gridColumns : 1)
+			: 0;
 
 	const { handleDoubleClick } = useExplorerEvents();
 
@@ -206,7 +241,7 @@ export const ObjectExplorer = ({ initialObjects, initialCursor }: Props): JSX.El
 				case 'Enter': {
 					// trigger preview for selected objects.
 					if (selectedObjects.size === 1) {
-						const nextObj = selectedObjects.values().next().value as string;
+						const nextObj = selectedObjects.keys().next().value as string;
 						handleDoubleClick({ isDirectory: nextObj.endsWith('/'), path: nextObj });
 					} else if (selectedObjects.size > 1) {
 						// eslint-disable-next-line no-console
@@ -291,51 +326,95 @@ export const ObjectExplorer = ({ initialObjects, initialCursor }: Props): JSX.El
 	}, [handleKeyPress]);
 
 	return (
-		<div className="table">
-			<div className="table-header-group">
-				{table.getHeaderGroups().map((headerGroup) => (
-					<div key={headerGroup.id} className="flex flex-grow flex-row py-2">
-						{headerGroup.headers.map((header) => (
-							<button
-								key={header.id}
-								type="button"
-								className={twMerge(
-									'flex flex-row items-center justify-between text-left text-sm font-normal',
-									header.index === 0 && 'pl-20', // padding due to the icon being in the file name column
-									header.column.getIsSorted() && 'font-medium',
-									header.column.getCanSort() && 'cursor-pointer select-none',
-								)}
-								style={{ width: header.column.getSize() }}
-								onClick={header.column.getToggleSortingHandler()}
-							>
-								{flexRender(header.column.columnDef.header, header.getContext())}
-								{getSortIcon(header.column.getIsSorted())}
-							</button>
+		<div
+			className="flex flex-grow flex-col justify-between overflow-x-auto overflow-y-auto"
+			onScroll={isGridView ? () => {} : handleScroll}
+		>
+			<div className="table">
+				{!isGridView && (
+					<div className="table-header-group">
+						{table.getHeaderGroups().map((headerGroup) => (
+							<div key={headerGroup.id} className="flex flex-grow flex-row py-2">
+								{headerGroup.headers.map((header) => (
+									<button
+										key={header.id}
+										type="button"
+										className={twMerge(
+											'flex flex-row items-center justify-between text-left text-sm font-normal',
+											header.index === 0 && 'pl-20', // padding due to the icon being in the file name column
+											header.column.getIsSorted() && 'font-medium',
+											header.column.getCanSort() && 'cursor-pointer select-none',
+										)}
+										style={{ width: header.column.getSize() }}
+										onClick={header.column.getToggleSortingHandler()}
+									>
+										{flexRender(header.column.columnDef.header, header.getContext())}
+										{getSortIcon(header.column.getIsSorted())}
+									</button>
+								))}
+							</div>
 						))}
 					</div>
-				))}
-			</div>
+				)}
 
-			<div
-				className="table-row-group max-h-[calc(100vh-100px)] overflow-y-auto [&>:nth-child(odd)]:bg-secondary/40 dark:[&>:nth-child(odd)]:bg-secondary-dark/40"
-				onScroll={handleScroll}
-				ref={parentRef}
-			>
-				{paddingTop > 0 && <div style={{ height: `${paddingTop}px` }} />}
-				{virtualRows.map((virtualRow) => {
-					const row = rows[virtualRow.index];
-					if (!row) return null;
+				<div
+					className={
+						isGridView
+							? 'relative -ml-4 max-h-[calc(100vh-100px)] w-full overflow-y-auto'
+							: 'table-row-group [&>:nth-child(odd)]:bg-secondary/40 dark:[&>:nth-child(odd)]:bg-secondary-dark/40'
+					}
+					ref={parentRef}
+					style={isGridView ? { height: `${rowVirtualizer.getTotalSize()}px` } : {}}
+					onScroll={isGridView ? handleScroll : () => {}}
+				>
+					{paddingTop > 0 && <div style={{ height: `${paddingTop}px` }} />}
+					{isGridView
+						? virtualRows.map((virtualRow) => (
+								<Fragment key={virtualRow.index}>
+									{virtualColumns.map((virtualColumn) => {
+										const index = virtualColumn.index + virtualRow.index * gridColumns;
+										if (index >= rows.length) return null;
 
-					return (
-						<ObjectRow
-							key={row.id}
-							row={row}
-							virtualRowSize={virtualRow.size}
-							handleClick={(e, obj) => handleMouseDown(e, obj, { idx: virtualRow.index })}
-						/>
-					);
-				})}
-				{paddingBottom > 0 && <div style={{ height: `${paddingBottom}px` }} />}
+										const row = rows[index];
+										if (!row) return null;
+
+										return (
+											<ObjectGridItem
+												key={row.id}
+												row={row}
+												handleClick={(e, obj) => handleMouseDown(e, obj, { idx: index })}
+												style={{
+													width: grid.width,
+													height: grid.height,
+													paddingLeft: grid.padding,
+													paddingTop: grid.padding,
+													transform: `translateX(${virtualColumn.start}px) translateY(${
+														virtualRow.start - rowVirtualizer.options.scrollMargin
+													}px)`,
+												}}
+												previewSize={grid.width - grid.padding}
+											/>
+										);
+									})}
+								</Fragment>
+						  ))
+						: virtualRows.map((virtualRow) => {
+								const row = rows[virtualRow.index];
+								if (!row) return null;
+
+								return (
+									<ObjectRow
+										key={row.id}
+										row={row}
+										virtualRowSize={virtualRow.size}
+										handleClick={(e, obj) => handleMouseDown(e, obj, { idx: virtualRow.index })}
+									/>
+								);
+						  })}
+					{paddingBottom > 0 && (
+						<div style={{ height: `${paddingBottom / (isGridView ? gridColumns : 1)}px` }} />
+					)}
+				</div>
 			</div>
 		</div>
 	);

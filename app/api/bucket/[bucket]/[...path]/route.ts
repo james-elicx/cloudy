@@ -31,7 +31,8 @@ export const GET = async (
 	object.writeHttpMetadata(headers);
 	headers.set('etag', object.httpEtag);
 
-	return new Response(object.body, { headers });
+	// TODO: Something broke with object.body here.
+	return new Response(await object.arrayBuffer(), { headers });
 };
 
 export const POST = async (

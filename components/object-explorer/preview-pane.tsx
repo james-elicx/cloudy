@@ -52,6 +52,8 @@ export const PreviewPane = () => {
 export const TogglePreviewPaneButton = () => {
 	const { isPreviewPaneActive, togglePreviewPane } = useSettings();
 
+	const Icon = isPreviewPaneActive ? Door : DoorOpen;
+
 	return (
 		<button
 			type="button"
@@ -59,11 +61,7 @@ export const TogglePreviewPaneButton = () => {
 			className="text-primary transition-all hover:text-accent dark:text-primary-dark dark:hover:text-accent-dark"
 			onClick={() => togglePreviewPane()}
 		>
-			{isPreviewPaneActive ? (
-				<Door weight="bold" className="h-5 w-5" />
-			) : (
-				<DoorOpen weight="bold" className="h-5 w-5" />
-			)}
+			<Icon weight="bold" className="h-5 w-5" />
 		</button>
 	);
 };

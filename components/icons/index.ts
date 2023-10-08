@@ -28,4 +28,6 @@ export {
 	CaretCircleDown,
 	Door,
 	DoorOpen,
+	List,
+	GridFour,
 } from '@phosphor-icons/react';
