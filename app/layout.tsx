@@ -56,7 +56,7 @@ const Layout = async ({ children }: Props) => {
 								<div className="flex flex-grow flex-row bg-background dark:bg-background-dark">
 									<SideNav />
 
-									<div className="flex h-screen flex-grow flex-col overflow-y-auto">
+									<div className="flex h-screen flex-grow flex-col">
 										<TopNav />
 
 										{children}
