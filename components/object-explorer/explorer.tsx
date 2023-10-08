@@ -183,7 +183,7 @@ export const ObjectExplorer = ({ initialObjects, initialCursor }: Props): JSX.El
 		count: rows.length, // Should this track some sort of count from R2?
 		estimateSize: () => (isGridView ? grid.height : 40),
 		getScrollElement: useCallback(() => parentRef.current, []),
-		overscan: 25,
+		overscan: 5,
 	});
 
 	const columnVirtualizer = useVirtualizer({
