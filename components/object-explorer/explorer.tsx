@@ -307,7 +307,9 @@ export const ObjectExplorer = ({ initialObjects, initialCursor }: Props): JSX.El
 				if (lastSelectedIdx === -1) {
 					addSelectedObject(object.path, objInfo);
 				} else {
-					for (let i = lastSelectedIdx; i <= objInfo.idx; i++) {
+					const start = Math.min(lastSelectedIdx, objInfo.idx);
+					const end = Math.max(lastSelectedIdx, objInfo.idx);
+					for (let i = start; i <= end; i++) {
 						const nextObj = rows[i];
 						if (nextObj) addSelectedObject(nextObj.original.path, { idx: i });
 					}
