@@ -28,7 +28,16 @@ export const GET = async (
 		headers.set('cache-control', cacheControlSetting.value);
 	}
 
-	object.writeHttpMetadata(headers);
+	// object.writeHttpMetadata does not work properly with Miniflare in next dev
+	if (object.httpMetadata?.contentDisposition)
+		headers.set('content-disposition', object.httpMetadata?.contentDisposition);
+	if (object.httpMetadata?.contentEncoding)
+		headers.set('content-encoding', object.httpMetadata?.contentEncoding);
+	if (object.httpMetadata?.contentLanguage)
+		headers.set('content-language', object.httpMetadata?.contentLanguage);
+	if (object.httpMetadata?.contentType)
+		headers.set('content-type', object.httpMetadata?.contentType);
+
 	headers.set('etag', object.httpEtag);
 
 	// TODO: Something broke with object.body here.

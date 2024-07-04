@@ -1,6 +1,6 @@
 import type { AccessControlKind } from '../cast';
 import { castBoolToInt, castIntToBool, castIntToKind, castKindToInt } from '../cast';
-import { db } from './schema';
+import { getDatabaseFromEnv } from './schema';
 
 type ReplaceValues<T, K extends keyof T, V> = Omit<T, K> & { [key in K]: V };
 
@@ -19,6 +19,7 @@ const castKeysToBool = <T extends { [key: string]: unknown }, K extends keyof T>
 };
 
 export const getUserById = async (id: number) => {
+	const db = getDatabaseFromEnv();
 	if (!db) return undefined;
 
 	const resp = await db
@@ -31,6 +32,7 @@ export const getUserById = async (id: number) => {
 };
 
 export const setUserIsAdmin = async (id: number, isAdmin: boolean) => {
+	const db = getDatabaseFromEnv();
 	if (!db) return undefined;
 
 	return db
@@ -52,6 +54,7 @@ const accessControlSelect = [
 ] as const;
 
 export const getUserAccessControl = async (userId: number, kind?: AccessControlKind) => {
+	const db = getDatabaseFromEnv();
 	if (!db) return undefined;
 
 	let q = db.selectFrom('AccessControl').select(accessControlSelect).where('userId', '=', userId);
@@ -69,6 +72,7 @@ export const getUserAccessControlForKey = async (
 	kind: AccessControlKind,
 	key: string,
 ) => {
+	const db = getDatabaseFromEnv();
 	if (!db) return undefined;
 
 	const resp = await db
@@ -91,6 +95,7 @@ export const addAccessControlRecord = async (
 	userId: number,
 	opts: { kind: AccessControlKind; key: string; glob: string; hasRead: boolean; hasWrite: boolean },
 ) => {
+	const db = getDatabaseFromEnv();
 	if (!db) return undefined;
 
 	return db
@@ -111,6 +116,7 @@ export const getVisibilityRecords = async ({
 	publicOnly,
 	readOnly,
 }: { kind?: AccessControlKind; publicOnly?: boolean; readOnly?: boolean } = {}) => {
+	const db = getDatabaseFromEnv();
 	if (!db) return undefined;
 
 	let q = db
@@ -132,6 +138,7 @@ export type VisibilityRecord = NonNullable<
 >[number];
 
 export const getVisibilityForKey = async (kind: AccessControlKind, key: string) => {
+	const db = getDatabaseFromEnv();
 	if (!db) return undefined;
 
 	const resp = await db
@@ -159,6 +166,7 @@ export const updateVisibilityRecord = async (
 		readOnly: boolean;
 	},
 ) => {
+	const db = getDatabaseFromEnv();
 	if (!db) return undefined;
 
 	if (id) {
@@ -188,6 +196,7 @@ export const updateVisibilityRecord = async (
 };
 
 export const getSettingsRecord = async (key: string) => {
+	const db = getDatabaseFromEnv();
 	if (!db) return undefined;
 
 	return db
@@ -200,6 +209,7 @@ export const getSettingsRecord = async (key: string) => {
 type SettingsType = 'general';
 
 export const getSettingsRecords = async (type: SettingsType) => {
+	const db = getDatabaseFromEnv();
 	if (!db) return undefined;
 
 	const records = await db
@@ -222,6 +232,7 @@ export const updateSettingsRecord = async (
 	value: string,
 	updatedBy: number,
 ) => {
+	const db = getDatabaseFromEnv();
 	if (!db) return undefined;
 
 	return db
