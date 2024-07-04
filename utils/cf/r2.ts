@@ -1,23 +1,17 @@
-import { binding } from 'cf-bindings-proxy';
 import { cache } from 'react';
 import { getUser, isAuthAvailable } from '../auth';
 import { q } from '../db';
 
-export const getBucketsFromEnv = (): Record<string, R2Bucket> => {
-	// In development, use `cf-bindings-proxy` to get the bucket.
-	if (process.env.NODE_ENV === 'development') {
-		return { 'cloudy-demo': binding<R2Bucket>('cloudy-demo') };
-	}
-
-	// In production, use the environment variables.
-	return Object.entries(process.env).reduce(
+export const getBucketsFromEnv = (): Record<string, R2Bucket> =>
+	Object.entries(process.env).reduce(
 		(acc, [key, value]) =>
-			typeof value === 'object' && ['list', 'put', 'get'].every((m) => m in value)
+			key !== 'ASSETS' &&
+			typeof value === 'object' &&
+			['list', 'put', 'get'].every((m) => m in value)
 				? { ...acc, [key]: value }
 				: acc,
 		{},
 	);
-};
 
 const getBucketFromEnv = (bucketName: string): R2Bucket | null | undefined => {
 	const buckets = getBucketsFromEnv();
@@ -28,7 +22,8 @@ export const getBucketItems = async (
 	bucketName: string,
 	{ directory, cursor, limit }: { directory: string; cursor?: string; limit?: number },
 ): Promise<R2Objects> =>
-	binding<R2Bucket>(bucketName).list({
+	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+	getBucketFromEnv(bucketName)!.list({
 		prefix: `${directory.replace(/^\/|\/$/g, '')}/`.replace(/\/\//g, '/').replace(/^\/$/, ''),
 		delimiter: '/',
 		cursor,

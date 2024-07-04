@@ -6,7 +6,7 @@ import { useOnClickOutside } from '@/utils/hooks';
 import type { ColumnDef } from '@tanstack/react-table';
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useMemo, useRef } from 'react';
-import { useAction } from 'next-safe-action/hook';
+import { useAction } from 'next-safe-action/hooks';
 import type { updateVisibility } from '@/utils/actions/access-control';
 import { useRouter } from 'next/navigation';
 import { twMerge } from 'tailwind-merge';
@@ -134,14 +134,12 @@ const UpdateVisibilityCell = ({ action, record }: UpdateVisibilityCellProps) => 
 
 	const { execute, isExecuting } = useAction(action, {
 		onSuccess: () => router.refresh(),
-		onError: ({ fetchError, serverError, validationError }, reset) => {
+		onError: ({ error }) => {
 			// eslint-disable-next-line no-console
-			console.error('Error updating visibility', fetchError, serverError, validationError);
+			console.error('Error updating visibility', error);
 
 			// eslint-disable-next-line no-alert
 			alert('Error updating visibility');
-
-			reset();
 		},
 	});
 

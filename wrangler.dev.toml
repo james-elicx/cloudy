@@ -1,4 +1,13 @@
+name = "cloudy"
+pages_build_output_dir = ".vercel/output/static"
+compatibility_date = "2023-08-27"
+compatibility_flags = ["nodejs_compat"]
+
 [[d1_databases]]
 binding = "CLOUDY_D1_LOCAL"
 database_name = "CLOUDY_D1_LOCAL"
 database_id = "CLOUDY_D1_LOCAL"
+
+[[r2_buckets]]
+binding = "cloudy-demo"
+bucket_name = "cloudy-demo"

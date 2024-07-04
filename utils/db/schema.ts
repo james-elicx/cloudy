@@ -1,4 +1,3 @@
-import { binding } from 'cf-bindings-proxy';
 import type { Generated, GeneratedAlways } from 'kysely';
 import { Kysely } from 'kysely';
 import { D1Dialect } from './kysely-d1';
@@ -74,7 +73,9 @@ export type Database = {
 const getDatabaseFromEnv = () => {
 	const d1 =
 		process.env.NODE_ENV === 'development'
-			? binding<D1Database>(process.env.DEV_CLOUDY_D1_BINDING_NAME || 'CLOUDY_D1_LOCAL')
+			? (process.env[process.env.DEV_CLOUDY_D1_BINDING_NAME || 'CLOUDY_D1_LOCAL'] as
+					| D1Database
+					| undefined)
 			: process.env.CLOUDY_D1;
 	if (d1) {
 		return new Kysely<Database>({ dialect: new D1Dialect({ database: d1 }) });
@@ -83,6 +84,4 @@ const getDatabaseFromEnv = () => {
 	return undefined;
 };
 
-const db = getDatabaseFromEnv();
-
-export { db };
+export { getDatabaseFromEnv };

@@ -2,7 +2,7 @@ import { KyselyAdapter } from '@auth/kysely-adapter';
 import NextAuth from 'next-auth';
 import GitHub from 'next-auth/providers/github';
 import { cache } from 'react';
-import { db } from '../db/schema';
+import { getDatabaseFromEnv } from '../db/schema';
 import { q } from '../db';
 
 const deriveAuthProviders = () => {
@@ -21,6 +21,7 @@ const deriveAuthProviders = () => {
 };
 
 const deriveDatabaseAdapter = () => {
+	const db = getDatabaseFromEnv();
 	if (db) {
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		// @ts-ignore - Weird type errors that shouldn't be there.

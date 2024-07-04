@@ -87,8 +87,6 @@ Future updates will include support on a more granular level, where you can use 
 
 Contributions are welcome! For large changes, please open an issue first to discuss what you would like to add.
 
-During local development, this project uses [`cf-bindings-proxy`](https://github.com/james-elicx/cf-bindings-proxy) to allow you to use `next dev`. You must run the proxy in a separate terminal window to `next dev`, using `pnpm run proxy`.
-
 ## Extra Words
 
 The visual design for Cloudy was inspired by [Spacedrive](https://github.com/spacedriveapp/spacedrive), an incredible open-source file explorer. I would strongly recommend checking it out!

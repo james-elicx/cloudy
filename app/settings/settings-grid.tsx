@@ -2,7 +2,7 @@
 
 import type { updateCacheHeader } from '@/utils/actions/settings';
 import type { SettingsRecord } from '@/utils/db/queries';
-import { useAction } from 'next-safe-action/hook';
+import { useAction } from 'next-safe-action/hooks';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -18,14 +18,12 @@ export const SettingsGrid = ({ settings, updateCacheHeaderAction }: Props) => {
 
 	const { execute, isExecuting } = useAction(updateCacheHeaderAction, {
 		onSuccess: () => router.refresh(),
-		onError: ({ fetchError, serverError, validationError }, reset) => {
+		onError: ({ error }) => {
 			// eslint-disable-next-line no-console
-			console.error('Error updating cache header', fetchError, serverError, validationError);
+			console.error('Error updating cache header', error);
 
 			// eslint-disable-next-line no-alert
 			alert('Error updating cache header');
-
-			reset();
 		},
 	});
 

@@ -9,7 +9,10 @@ const Page = async ({ params: { bucket, path } }: Props) => {
 	const fullPath = formatFullPath(path);
 	const items = await getBucketItems(bucket, { directory: fullPath.join('/') });
 
-	const objects = [...items.delimitedPrefixes, ...items.objects];
+	const objects = [...items.delimitedPrefixes, ...items.objects].map(
+		// Miniflare returns a class for R2Object in next dev which client components cannot receive as props.
+		(o): R2Object | string => JSON.parse(JSON.stringify(o)),
+	);
 
 	return (
 		<main className="flex h-full max-h-[calc(100%-4rem)] w-full max-w-[calc(100vw-16rem)] flex-row justify-between gap-4 px-4">
