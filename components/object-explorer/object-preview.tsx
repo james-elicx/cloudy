@@ -4,6 +4,16 @@ import { addLeadingSlash } from '@/utils';
 import { useOnClickOutside } from '@/utils/hooks';
 import { XCircle } from '@phosphor-icons/react';
 import { useEffect, useRef, useState } from 'react';
+import {
+	MediaControlBar,
+	MediaController,
+	MediaFullscreenButton,
+	MediaMuteButton,
+	MediaPlayButton,
+	MediaTimeDisplay,
+	MediaTimeRange,
+	MediaVolumeRange,
+} from 'media-chrome/react';
 import { useLocation, useObjectExplorer } from '../providers';
 
 export const ObjectPreview = (): JSX.Element => {
@@ -115,12 +125,22 @@ export const ObjectPreview = (): JSX.Element => {
 				)}
 
 				{previewKey && data?.httpMetadata?.contentType?.startsWith('video') && (
-					// eslint-disable-next-line jsx-a11y/media-has-caption
-					<video
-						src={`/api/bucket/${currentBucket?.raw}${addLeadingSlash(previewKey)}`}
-						controls
-						className="max-h-[calc(100vh-10rem)] max-w-full"
-					/>
+					<MediaController>
+						{/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+						<video
+							slot="media"
+							className="max-h-[calc(100vh-10rem)] max-w-full"
+							src={`/api/bucket/${currentBucket?.raw}${addLeadingSlash(previewKey)}`}
+						/>
+						<MediaControlBar>
+							<MediaPlayButton />
+							<MediaMuteButton />
+							<MediaVolumeRange />
+							<MediaTimeRange />
+							<MediaTimeDisplay />
+							<MediaFullscreenButton />
+						</MediaControlBar>
+					</MediaController>
 				)}
 			</div>
 		</dialog>
