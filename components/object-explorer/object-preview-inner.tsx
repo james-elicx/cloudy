@@ -2,6 +2,7 @@ import { addLeadingSlash } from '@/utils';
 import type { FileType } from '@/utils';
 import { memo } from 'react';
 import { twMerge } from 'tailwind-merge';
+import { encode } from '@/utils/encoding';
 import { useLocation } from '../providers';
 import { getFileIcon } from './file-icons';
 
@@ -21,7 +22,7 @@ export const ObjectPreviewInner = memo(
 		const { currentBucket } = useLocation();
 		if (!currentBucket || !path || !itemType) return null;
 
-		const itemApiSrc = `/api/bucket/${currentBucket?.raw}${addLeadingSlash(btoa(path))}`;
+		const itemApiSrc = `/api/bucket/${currentBucket?.raw}${addLeadingSlash(encode(path))}`;
 
 		switch (itemType) {
 			case 'image': {

@@ -1,5 +1,6 @@
 import { getBucket } from '@/utils/cf';
 import { getSettingsRecord } from '@/utils/db/queries';
+import { decode } from '@/utils/encoding';
 
 export const runtime = 'edge';
 
@@ -14,7 +15,7 @@ export const GET = async (
 		return new Response('Unable to read bucket', { status: 400 });
 	}
 
-	const path = atob(key);
+	const path = decode(key);
 
 	const [, start, end] = /^bytes=(\d+)-(\d+)?$/.exec(req.headers.get('range') ?? '') ?? [];
 
@@ -73,7 +74,7 @@ export const POST = async (
 		return new Response('Unable to read bucket', { status: 400 });
 	}
 
-	const path = atob(key);
+	const path = decode(key);
 
 	const object = await bucket.head(path);
 
