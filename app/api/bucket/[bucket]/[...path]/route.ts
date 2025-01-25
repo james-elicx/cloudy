@@ -40,8 +40,7 @@ export const GET = async (
 
 	headers.set('etag', object.httpEtag);
 
-	// TODO: Something broke with object.body here.
-	return new Response(await object.arrayBuffer(), { headers });
+	return new Response(object.body, { headers });
 };
 
 export const POST = async (
