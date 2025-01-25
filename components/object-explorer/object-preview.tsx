@@ -21,12 +21,14 @@ export const ObjectPreview = (): JSX.Element => {
 	const { isPreviewActive, dismissPreview, selectedObjects } = useObjectExplorer();
 
 	const abortController = useRef<AbortController>(new AbortController());
+	const abortController2 = useRef<AbortController>(new AbortController());
 	const modal = useRef<HTMLDialogElement>(null);
 	const modalInner = useRef<HTMLDivElement>(null);
 
 	const [data, setData] = useState<R2Object | null>(null);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
+	const [objectStr, setObjectStr] = useState<string | null>(null);
 
 	useEffect(() => {
 		if (!isPreviewActive || !currentBucket) return;
@@ -36,6 +38,8 @@ export const ObjectPreview = (): JSX.Element => {
 		const controller = abortController.current;
 
 		setIsLoading(true);
+		setData(null);
+		setObjectStr(null);
 
 		const key = selectedObjects.keys().next().value;
 		if (!key) {
@@ -75,10 +79,40 @@ export const ObjectPreview = (): JSX.Element => {
 		};
 	}, [isPreviewActive, currentBucket, selectedObjects]);
 
+	const previewKey = selectedObjects.keys().next().value;
+
+	useEffect(() => {
+		if (!currentBucket || !previewKey || !data?.httpMetadata?.contentType) return;
+
+		abortController2.current = new AbortController();
+		const controller = abortController2.current;
+
+		if (['application/json', 'text/plain'].includes(data.httpMetadata.contentType)) {
+			fetch(`/api/bucket/${currentBucket.raw}${addLeadingSlash(previewKey)}`, {
+				signal: controller.signal,
+			})
+				.then((resp) => resp.text())
+				.then((v) =>
+					setObjectStr(
+						data.httpMetadata?.contentType?.endsWith('json')
+							? JSON.stringify(JSON.parse(v), null, 2)
+							: v,
+					),
+				)
+				.catch((e) => setError(e instanceof Error ? e.message : 'Error fetching string contents'));
+		}
+
+		// eslint-disable-next-line consistent-return
+		return () => {
+			controller.abort();
+		};
+	}, [currentBucket, previewKey, data]);
+
 	useEffect(() => {
 		const onCloseModal = () => {
 			dismissPreview();
 			setData(null);
+			setObjectStr(null);
 			setError(null);
 		};
 
@@ -92,8 +126,6 @@ export const ObjectPreview = (): JSX.Element => {
 	}, [dismissPreview, modal]);
 
 	useOnClickOutside(modalInner, () => modal.current?.close());
-
-	const previewKey = selectedObjects.keys().next().value;
 
 	return (
 		<dialog
@@ -141,6 +173,19 @@ export const ObjectPreview = (): JSX.Element => {
 							<MediaFullscreenButton />
 						</MediaControlBar>
 					</MediaController>
+				)}
+
+				{previewKey && objectStr && (
+					// eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
+					<code
+						className="max-h-[calc(100vh-10rem)] max-w-full overflow-y-auto whitespace-pre-wrap break-all text-xs"
+						onClick={(e) => {
+							e.stopPropagation();
+							e.preventDefault();
+						}}
+					>
+						{objectStr}
+					</code>
 				)}
 			</div>
 		</dialog>
