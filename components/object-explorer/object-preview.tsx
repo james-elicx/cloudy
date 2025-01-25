@@ -14,6 +14,7 @@ import {
 	MediaTimeRange,
 	MediaVolumeRange,
 } from 'media-chrome/react';
+import { encode } from '@/utils/encoding';
 import { useLocation, useObjectExplorer } from '../providers';
 
 export const ObjectPreview = (): JSX.Element => {
@@ -31,7 +32,7 @@ export const ObjectPreview = (): JSX.Element => {
 	const [objectStr, setObjectStr] = useState<string | null>(null);
 
 	const rawPreviewKey = selectedObjects.keys().next().value;
-	const previewKey = rawPreviewKey ? btoa(rawPreviewKey) : undefined;
+	const previewKey = rawPreviewKey ? encode(rawPreviewKey) : undefined;
 
 	useEffect(() => {
 		if (!isPreviewActive || !currentBucket) return;
