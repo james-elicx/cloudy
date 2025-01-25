@@ -21,7 +21,7 @@ export const ObjectPreviewInner = memo(
 		const { currentBucket } = useLocation();
 		if (!currentBucket || !path || !itemType) return null;
 
-		const itemApiSrc = `/api/bucket/${currentBucket?.raw}${addLeadingSlash(path)}`;
+		const itemApiSrc = `/api/bucket/${currentBucket?.raw}${addLeadingSlash(btoa(path))}`;
 
 		switch (itemType) {
 			case 'image': {

@@ -3,20 +3,22 @@ import { getSettingsRecord } from '@/utils/db/queries';
 
 export const runtime = 'edge';
 
-type Params = { bucket: string; path: string[] };
+type Params = { bucket: string; key: string };
 
 export const GET = async (
 	req: Request,
-	{ params: { bucket: bucketName, path } }: { params: Params },
+	{ params: { bucket: bucketName, key } }: { params: Params },
 ) => {
 	const bucket = await getBucket(bucketName);
 	if (!bucket) {
 		return new Response('Unable to read bucket', { status: 400 });
 	}
 
+	const path = atob(key);
+
 	const [, start, end] = /^bytes=(\d+)-(\d+)?$/.exec(req.headers.get('range') ?? '') ?? [];
 
-	const object = await bucket.get(path.join('/'), {
+	const object = await bucket.get(path, {
 		...(start && { range: { offset: Number(start), length: end ? Number(end) : undefined } }),
 	});
 
@@ -64,14 +66,16 @@ export const GET = async (
 
 export const POST = async (
 	_req: Request,
-	{ params: { bucket: bucketName, path } }: { params: Params },
+	{ params: { bucket: bucketName, key } }: { params: Params },
 ) => {
 	const bucket = await getBucket(bucketName);
 	if (!bucket) {
 		return new Response('Unable to read bucket', { status: 400 });
 	}
 
-	const object = await bucket.head(path.join('/'));
+	const path = atob(key);
+
+	const object = await bucket.head(path);
 
 	if (!object) {
 		return new Response('Not found', { status: 404 });

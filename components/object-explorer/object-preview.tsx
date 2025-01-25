@@ -30,6 +30,9 @@ export const ObjectPreview = (): JSX.Element => {
 	const [error, setError] = useState<string | null>(null);
 	const [objectStr, setObjectStr] = useState<string | null>(null);
 
+	const rawPreviewKey = selectedObjects.keys().next().value;
+	const previewKey = rawPreviewKey ? btoa(rawPreviewKey) : undefined;
+
 	useEffect(() => {
 		if (!isPreviewActive || !currentBucket) return;
 		modal.current?.showModal();
@@ -41,14 +44,13 @@ export const ObjectPreview = (): JSX.Element => {
 		setData(null);
 		setObjectStr(null);
 
-		const key = selectedObjects.keys().next().value;
-		if (!key) {
+		if (!previewKey) {
 			setError('No object selected');
 			setIsLoading(false);
 			return;
 		}
 
-		fetch(`/api/bucket/${currentBucket.raw}${addLeadingSlash(key)}`, {
+		fetch(`/api/bucket/${currentBucket.raw}${addLeadingSlash(previewKey)}`, {
 			method: 'POST',
 			signal: controller.signal,
 		})
@@ -77,9 +79,7 @@ export const ObjectPreview = (): JSX.Element => {
 		return () => {
 			controller.abort();
 		};
-	}, [isPreviewActive, currentBucket, selectedObjects]);
-
-	const previewKey = selectedObjects.keys().next().value;
+	}, [isPreviewActive, currentBucket, selectedObjects, previewKey]);
 
 	useEffect(() => {
 		if (!currentBucket || !previewKey || !data?.httpMetadata?.contentType) return;
@@ -134,7 +134,7 @@ export const ObjectPreview = (): JSX.Element => {
 		>
 			<div className="flex flex-col items-center gap-2" ref={modalInner}>
 				<div className="flex w-full flex-row justify-center">
-					<h5>{previewKey?.replace(/.*\//, '')}</h5>
+					<h5>{rawPreviewKey?.replace(/.*\//, '')}</h5>
 
 					<button type="button" onClick={() => modal.current?.close()}>
 						<XCircle
@@ -151,7 +151,7 @@ export const ObjectPreview = (): JSX.Element => {
 					// eslint-disable-next-line @next/next/no-img-element
 					<img
 						src={`/api/bucket/${currentBucket?.raw}${addLeadingSlash(previewKey)}`}
-						alt={previewKey}
+						alt={rawPreviewKey}
 						className="max-h-[calc(100vh-10rem)] max-w-full"
 					/>
 				)}
