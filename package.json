@@ -41,7 +41,7 @@
 		"zod": "^3.22.2"
 	},
 	"devDependencies": {
-		"@cloudflare/next-on-pages": "beta",
+		"@cloudflare/next-on-pages": "^1.13.16",
 		"@cloudflare/workers-types": "^4.20240620.0",
 		"@tsconfig/strictest": "^2.0.1",
 		"@types/better-sqlite3": "^7.6.12",
