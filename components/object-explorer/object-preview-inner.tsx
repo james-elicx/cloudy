@@ -5,11 +5,13 @@ import { twMerge } from 'tailwind-merge';
 import { encode } from '@/utils/encoding';
 import { useLocation } from '../providers';
 import { getFileIcon } from './file-icons';
+import { Image } from './image';
 
 type Props = {
 	className?: string;
 	path: string;
 	type: FileType;
+	contentType: string;
 };
 
 const FallbackIcon = ({ type: itemType }: Pick<Props, 'type'>) => {
@@ -18,7 +20,7 @@ const FallbackIcon = ({ type: itemType }: Pick<Props, 'type'>) => {
 };
 
 export const ObjectPreviewInner = memo(
-	({ className, path, type: itemType }: Props) => {
+	({ className, path, type: itemType, contentType }: Props) => {
 		const { currentBucket } = useLocation();
 		if (!currentBucket || !path || !itemType) return null;
 
@@ -28,14 +30,14 @@ export const ObjectPreviewInner = memo(
 			case 'image': {
 				return (
 					<>
-						{/* eslint-disable-next-line @next/next/no-img-element */}
-						<img
+						<Image
+							contentType={contentType}
 							src={itemApiSrc}
 							alt={path}
 							className={twMerge(className, 'z-20 h-full w-full object-contain')}
 						/>
-						{/* eslint-disable-next-line @next/next/no-img-element */}
-						<img
+						<Image
+							contentType={contentType}
 							src={itemApiSrc}
 							alt={path}
 							className={twMerge(className, 'absolute z-10 h-full w-full object-cover blur-[50px]')}

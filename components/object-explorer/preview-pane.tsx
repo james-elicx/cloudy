@@ -31,7 +31,13 @@ export const PreviewPane = () => {
 				</div>
 
 				<div className="relative flex h-full max-h-[16rem] w-full items-center justify-center overflow-hidden rounded-md bg-secondary/30 dark:bg-secondary-dark/30">
-					{item && <ObjectPreviewInner path={item.path} type={item.getType()} />}
+					{item && (
+						<ObjectPreviewInner
+							path={item.path}
+							type={item.getType()}
+							contentType={item.getContentType()}
+						/>
+					)}
 				</div>
 
 				{item && (

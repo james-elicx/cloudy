@@ -16,6 +16,7 @@ import {
 } from 'media-chrome/react';
 import { encode } from '@/utils/encoding';
 import { useLocation, useObjectExplorer } from '../providers';
+import { Image } from './image';
 
 export const ObjectPreview = (): JSX.Element => {
 	const { currentBucket } = useLocation();
@@ -149,8 +150,8 @@ export const ObjectPreview = (): JSX.Element => {
 				{error && <p className="text-status-error">{error}</p>}
 
 				{previewKey && data?.httpMetadata?.contentType?.startsWith('image') && (
-					// eslint-disable-next-line @next/next/no-img-element
-					<img
+					<Image
+						contentType={data.httpMetadata.contentType}
 						src={`/api/bucket/${currentBucket?.raw}${addLeadingSlash(previewKey)}`}
 						alt={rawPreviewKey}
 						className="max-h-[calc(100vh-10rem)] max-w-full"

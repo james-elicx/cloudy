@@ -69,6 +69,7 @@ export const parseObject = (object: string | R2Object) => {
 		rawType: isDirectory ? 'folder' : object.httpMetadata?.contentType,
 		getType: (): FileType =>
 			isDirectory ? 'folder' : parseFileType(object.key, object.httpMetadata?.contentType),
+		getContentType: () => (isDirectory ? 'folder' : object.httpMetadata?.contentType || 'unknown'),
 		getSize: (): string => (isDirectory ? '' : bytesToString(object.size)),
 		getLastModified: (): Date | null => {
 			if (isDirectory) return null;
