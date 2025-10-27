@@ -1,15 +1,17 @@
 import { addLeadingSlash } from '@/utils';
 import type { FileType } from '@/utils';
-import { memo } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { encode } from '@/utils/encoding';
 import { useLocation } from '../providers';
 import { getFileIcon } from './file-icons';
+import heic2any from 'heic2any';
 
 type Props = {
 	className?: string;
 	path: string;
 	type: FileType;
+	contentType: string;
 };
 
 const FallbackIcon = ({ type: itemType }: Pick<Props, 'type'>) => {
@@ -18,7 +20,7 @@ const FallbackIcon = ({ type: itemType }: Pick<Props, 'type'>) => {
 };
 
 export const ObjectPreviewInner = memo(
-	({ className, path, type: itemType }: Props) => {
+	({ className, path, type: itemType, contentType }: Props) => {
 		const { currentBucket } = useLocation();
 		if (!currentBucket || !path || !itemType) return null;
 
@@ -28,14 +30,14 @@ export const ObjectPreviewInner = memo(
 			case 'image': {
 				return (
 					<>
-						{/* eslint-disable-next-line @next/next/no-img-element */}
-						<img
+						<ImagePreviewInner
+							contentType={contentType}
 							src={itemApiSrc}
 							alt={path}
 							className={twMerge(className, 'z-20 h-full w-full object-contain')}
 						/>
-						{/* eslint-disable-next-line @next/next/no-img-element */}
-						<img
+						<ImagePreviewInner
+							contentType={contentType}
 							src={itemApiSrc}
 							alt={path}
 							className={twMerge(className, 'absolute z-10 h-full w-full object-cover blur-[50px]')}
@@ -62,3 +64,45 @@ export const ObjectPreviewInner = memo(
 );
 
 ObjectPreviewInner.displayName = 'ObjectPreviewInner';
+
+type ImagePreviewInnerProps = {
+	src: string;
+	className: string;
+	alt?: string;
+	contentType: string;
+};
+
+export const ImagePreviewInner = memo(
+	({ src: src_, className, alt, contentType }: ImagePreviewInnerProps) => {
+		const [src, setSrc] = useState(src_);
+
+		useEffect(() => {
+			const convertHeicToJpeg = async () => {
+				heic2any({
+					blob: await fetch(src_).then((res) => res.blob()),
+					toType: 'image/jpeg',
+					quality: 1,
+				})
+					.then((res) => setSrc(URL.createObjectURL(Array.isArray(res) ? res[0] : res)))
+					.catch((err) => {
+						console.error(err);
+						alert('Failed to convert HEIC image');
+					});
+			};
+
+			if (contentType === 'image/heif') {
+				convertHeicToJpeg();
+			}
+		}, [src_, contentType]);
+
+		// eslint-disable-next-line @next/next/no-img-element
+		return <img src={src} alt={alt} className={className} />;
+	},
+	(a, b) =>
+		a.src !== b.src &&
+		a.className !== b.className &&
+		a.alt !== b.alt &&
+		a.contentType !== b.contentType,
+);
+
+ImagePreviewInner.displayName = 'ImagePreviewInner';

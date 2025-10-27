@@ -27,6 +27,7 @@
 		"@tanstack/react-virtual": "3.0.0-beta.56",
 		"better-sqlite3": "^11.5.0",
 		"cf-bindings-proxy": "0.7.1",
+		"heic2any": "^0.0.4",
 		"kysely": "^0.26.3",
 		"media-chrome": "^4.3.1",
 		"next": "14.2.4",

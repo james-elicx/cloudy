@@ -32,7 +32,11 @@ export const ObjectGridItem = ({ row, handleClick, style, previewSize }: Props):
 				className="relative flex w-full items-center justify-center overflow-hidden rounded-md bg-secondary/30 dark:bg-secondary-dark/30"
 				style={{ width: `${previewSize}px`, height: `${previewSize}px` }}
 			>
-				<ObjectPreviewInner path={object.path} type={object.getType()} />
+				<ObjectPreviewInner
+					path={object.path}
+					type={object.getType()}
+					contentType={object.getContentType()}
+				/>
 			</div>
 			<span
 				className={twMerge(
