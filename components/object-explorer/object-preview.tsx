@@ -16,7 +16,7 @@ import {
 } from 'media-chrome/react';
 import { encode } from '@/utils/encoding';
 import { useLocation, useObjectExplorer } from '../providers';
-import { ImagePreviewInner } from './object-preview-inner';
+import { Image } from './image';
 
 export const ObjectPreview = (): JSX.Element => {
 	const { currentBucket } = useLocation();
@@ -150,7 +150,7 @@ export const ObjectPreview = (): JSX.Element => {
 				{error && <p className="text-status-error">{error}</p>}
 
 				{previewKey && data?.httpMetadata?.contentType?.startsWith('image') && (
-					<ImagePreviewInner
+					<Image
 						contentType={data.httpMetadata.contentType}
 						src={`/api/bucket/${currentBucket?.raw}${addLeadingSlash(previewKey)}`}
 						alt={rawPreviewKey}
